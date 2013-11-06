@@ -1,3 +1,11 @@
+this fork
+=========
+
+Essentia provides great facilities for audio processing, but it lacks a nice interface to some standard
+machine learning tools that I want to play with. This fork will include an interface to as many of the
+OpenCV ML Module tools as possible [k-means, random forest classifier, ... ] and hopefully some topic 
+modelling tools as well.
+
 essentia
 ========
 
