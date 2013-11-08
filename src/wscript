@@ -18,6 +18,8 @@ def options(ctx):
     ctx.add_option('--with-vamp', action='store_true',
                    dest='WITH_VAMP', default=False,
                    help='build the vamp plugin wrapper')
+    ctx.add_option('--with-opencv', action='store_true',
+                   dest='WITH_OPENCV', default=False)
 
     #add option --with-gaia
 
@@ -41,6 +43,7 @@ def configure(ctx):
     ctx.env.WITH_PYTHON   = ctx.options.WITH_PYTHON
     ctx.env.WITH_VAMP     = ctx.options.WITH_VAMP
     ctx.env.WITH_STATIC_EXAMPLES = ctx.options.WITH_STATIC_EXAMPLES
+    ctx.env.WITH_OPENCV   = ctx.options.WITH_OPENCV
 
     if ctx.env.WITH_STATIC_EXAMPLES:
         ctx.env.WITH_EXAMPLES = True
@@ -95,6 +98,10 @@ def configure(ctx):
 
     if ctx.env.WITH_PYTHON:
         ctx.recurse('python')
+
+    if ctx.env.WITH_OPENCV:
+        ctx.check_cfg(package='opencv', uselib_store='OPENCV',
+                  args=['--cflags', '--libs'])
 
 
 
@@ -156,6 +163,11 @@ def configure(ctx):
         print('  The following algorithms will be ignored: %s\n' % algos)
         ctx.env.ALGOIGNORE += algos
 
+    if has('opencv'):
+        print('- OpenCV detected!')
+    else:
+        print('- OpenCV seems to be missing.')    
+
 
     print('=======================================================================================')
 
@@ -180,7 +192,7 @@ def build(ctx):
     from utils.algorithms_info import get_all_algorithms, create_registration_cpp
     algos = get_all_algorithms(ctx.path.find_dir('algorithms').abspath(),
                                root_dir = ctx.path.abspath())
-
+    print ctx.env
     # select the algorithms we want to build
 
     if ctx.env['ALGOINCLUDE']:
@@ -203,6 +215,10 @@ def build(ctx):
     # do not compile audiocontext.cpp if we're not compiling ffmpeg
     if 'AVCODEC' not in ctx.env.USES:
         sources = [ s for s in sources if 'audiocontext' not in str(s) ]
+
+    # TODO: handle people who haven't dealt with the OpenCV dependency!!!
+    if 'OPENCV' not in ctx.env.USES:
+        pass
 
     # add all algorithms found in the algorithms/ folder
     sources += [ ctx.path.find_resource('algorithms/essentia_algorithms_reg.cpp') ]
