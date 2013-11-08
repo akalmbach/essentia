@@ -38,6 +38,8 @@ class PoolMatAggregator : public Algorithm {
  protected:
   Input<Pool> _input;
   Output<cv::Mat> _output;
+  
+  std::string _field;
 
  public:
   PoolMatAggregator() {

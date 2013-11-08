@@ -26,6 +26,7 @@
 using namespace std;
 using namespace essentia;
 using namespace standard;
+using namespace cv;
 
 const char* PoolMatAggregator::name = "PoolMatAggregator";
 
@@ -33,9 +34,24 @@ const char* PoolMatAggregator::description = DOC("This algorithm performs aggreg
   "The pool must be a vector <Real> Pool, and each vector <Real> will be placed into a row of the output Mat.\n");
 
 void PoolMatAggregator::compute() {
-
+        const Pool& input = _input.get();
+	Mat& output = _output.get();
+        // TODO: Does this really have to be only a vector<Real> pool?
+        if ( input.contains< vector <vector <Real> > >(_field) ) {
+            // Get value in input(_field) as a vector< vector<Real> >
+            vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(_field);
+            // Initialize output to num rows = outer vector size, num cols = inner vector size
+            // TODO: verify that type = CV_32FC1 is the way all the ml algorithms take their input
+	    //output.zeros(100, 100, CV_32FC1);
+        
+            // Iterate over the elements, cast them as float
+            // and put them in the right place in the output
+        }
+        else {
+            // TODO: Throw an exception of some kind
+        }
 }
 
 void PoolMatAggregator::configure() {
-	
+	_field = parameter("field").toString();
 }

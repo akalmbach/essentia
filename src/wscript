@@ -165,6 +165,7 @@ def configure(ctx):
 
     if has('opencv'):
         print('- OpenCV detected!')
+        ctx.env.USES += ' OPENCV'
     else:
         print('- OpenCV seems to be missing.')    
 
@@ -192,7 +193,6 @@ def build(ctx):
     from utils.algorithms_info import get_all_algorithms, create_registration_cpp
     algos = get_all_algorithms(ctx.path.find_dir('algorithms').abspath(),
                                root_dir = ctx.path.abspath())
-    print ctx.env
     # select the algorithms we want to build
 
     if ctx.env['ALGOINCLUDE']:
@@ -218,7 +218,7 @@ def build(ctx):
 
     # TODO: handle people who haven't dealt with the OpenCV dependency!!!
     if 'OPENCV' not in ctx.env.USES:
-        pass
+        print "NO OPENCV! This build will probably have linker errors!"
 
     # add all algorithms found in the algorithms/ folder
     sources += [ ctx.path.find_resource('algorithms/essentia_algorithms_reg.cpp') ]
