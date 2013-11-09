@@ -36,26 +36,28 @@ const char* PoolMatAggregator::description = DOC("This algorithm performs aggreg
 void PoolMatAggregator::compute() {
         const Pool& input = _input.get();
 	Mat& output = _output.get();
-        // TODO: Does this really have to be only a vector<Real> pool?
+        
         if ( input.contains< vector <vector <Real> > >(_field) ) {
             // Get value in input(_field) as a vector< vector<Real> >
             vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(_field);
             // Initialize output to num rows = outer vector size, num cols = inner vector size
             int rows = input_data.size();
             int cols = input_data[0].size();
-            output(rows, cols, CV_32FC1);
+            output = Mat::zeros(rows, cols, CV_32FC1);
         
             // Iterate over the elements, cast them as float
             // and put them in the right place in the output
             for (int r = 0; r < rows; r++) {
+                if (input_data[r].size() != cols) {
+                    throw EssentiaException("PoolMatAggregator tried to aggregate a field with a variable number of entries");
+                }
                 for (int c = 0; c < cols; c++) {
-                    // TODO: Handle badly formatted fields where this will go out of range!
-                    output.at<float>(r, c) = (float) input_data[r][c];
+                    output.at<float>(r, c) = input_data[r][c];
                 }
             }
         }
         else {
-            // TODO: Throw an exception of some kind
+            throw EssentiaException("PoolMatAggregator tried to aggregate a field of type other than vector<Real>: " + _field);
         }
 }
 
