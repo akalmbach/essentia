@@ -34,33 +34,62 @@ const char* PoolMatAggregator::description = DOC("This algorithm performs aggreg
   "The pool must be a vector <Real> Pool, and each vector <Real> will be placed into a row of the output Mat.\n");
 
 void PoolMatAggregator::compute() {
-        const Pool& input = _input.get();
+	const Pool& input = _input.get();
+	
+	int rows = getNumSamples(input);
+	int cols = 0;
+	for (int i = 0; i < _fields.size(); i++) {
+		cols += getColsForField(input, _fields[i]);
+	}
+
 	Mat& output = _output.get();
-        
-        if ( input.contains< vector <vector <Real> > >(_field) ) {
-            // Get value in input(_field) as a vector< vector<Real> >
-            vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(_field);
-            // Initialize output to num rows = outer vector size, num cols = inner vector size
-            int rows = input_data.size();
-            int cols = input_data[0].size();
-            output = Mat::zeros(rows, cols, CV_32FC1);
-        
-            // Iterate over the elements, cast them as float
-            // and put them in the right place in the output
-            for (int r = 0; r < rows; r++) {
-                if (input_data[r].size() != cols) {
-                    throw EssentiaException("PoolMatAggregator tried to aggregate a field with a variable number of entries");
-                }
-                for (int c = 0; c < cols; c++) {
-                    output.at<float>(r, c) = input_data[r][c];
-                }
-            }
-        }
-        else {
-            throw EssentiaException("PoolMatAggregator tried to aggregate a field of type other than vector<Real>: " + _field);
-        }
+	output = Mat::zeros(rows, cols, CV_32FC1);
+	
+	// TODO: Better names for index vars
+	int col = 0;
+	for (int i = 0; i < _fields.size(); i++) {
+		vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(_fields[i]);
+		for (int row = 0; row < rows; row++) {
+			for (int j = 0; j < input_data.size(); j++) {
+				output.at<float>(row, col + j) = input_data[row][j];
+			}
+		}
+		col += input_data.size();
+	}
+
+}
+
+int PoolMatAggregator::getColsForField(const Pool& input, string field) {
+	if (!input.contains< vector <vector <Real> > >(field)) {
+		throw EssentiaException("PoolMatAggregator tried to use a field with the wrong type: " + field);
+	}
+	
+	vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(field);
+	int cols = input_data[0].size();
+	for (int i = 0; i < input_data.size(); i++) {
+		if (input_data[i].size() != cols) {
+			throw EssentiaException("PoolMatAggregator requires each intance of a given field to have constant width: " + field);
+		}
+	}
+	return cols;
+}
+
+int PoolMatAggregator::getNumSamples(const Pool& input) {
+	int num_samples = -1;
+	for (int i = 0; i < _fields.size(); i++) {
+		if (!input.contains< vector <vector <Real> > >(_fields[i])) {
+			throw EssentiaException("PoolMatAggregator tried to use a field with the wrong type: " + _fields[i]);
+		}
+		if ( (input.value< vector <vector <Real> > >(_fields[i])).size() != num_samples && num_samples != -1 ) 	{
+			throw EssentiaException("PoolMatAggregator requires all fields to have the same number of samples: " + _fields[i]);
+		}
+		if (num_samples == -1) {
+			num_samples = input.value< vector <vector <Real> > >(_fields[i]).size();
+		}
+	}
+	return num_samples;
 }
 
 void PoolMatAggregator::configure() {
-	_field = parameter("field").toString();
+	_fields = parameter("fields").toVectorString();
 }

@@ -24,7 +24,6 @@
 #ifndef ESSENTIA_POOLMATAGGREGATOR_H
 #define ESSENTIA_POOLMATAGGREGATOR_H
 
-// TODO: Include OpenCV
 #include <set>
 #include <opencv/cv.h>
 #include "algorithm.h"
@@ -39,7 +38,10 @@ class PoolMatAggregator : public Algorithm {
   Input<Pool> _input;
   Output<cv::Mat> _output;
   
-  std::string _field;
+  std::vector<std::string> _fields;
+  
+  int getColsForField(const Pool& input, std::string field);
+  int getNumSamples(const Pool& input);
 
  public:
   PoolMatAggregator() {
@@ -48,7 +50,8 @@ class PoolMatAggregator : public Algorithm {
   }
 
   void declareParameters() {
-	declareParameter("field", "The name of the input pool's field which will be used in the Mat.", "", "");
+	declareParameter("fields", "The names of the fields to be concatenated in each sample",
+		"", std::vector<std::string>());
 	//declareParameter("matType", "the OpenCV type for the Mat to be created.", CV_32FC1);
   }
 
