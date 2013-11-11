@@ -48,28 +48,43 @@ void PoolMatAggregator::compute() {
 	// TODO: Better names for index vars
 	int col = 0;
 	for (int i = 0; i < _fields.size(); i++) {
-		vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(_fields[i]);
-		for (int row = 0; row < rows; row++) {
-			for (int j = 0; j < input_data.size(); j++) {
-				output.at<float>(row, col + j) = input_data[row][j];
+		if (input.contains< vector <vector <Real> > >(_fields[i])) {
+			vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(_fields[i]);
+			for (int row = 0; row < rows; row++) {
+				for (int j = 0; j < input_data[row].size(); j++) {
+					output.at<float>(row, col + j) = input_data[row][j];
+				}
 			}
+			col += input_data[0].size();
 		}
-		col += input_data.size();
+		else if (input.contains< vector <Real> >(_fields[i])) {
+			vector<Real> input_data = input.value< vector<Real> >(_fields[i]);
+			for (int row = 0; row < rows; row++) {
+				output.at<float>(row, col) = input_data[row];
+			}
+			col++;
+		}
 	}
 
 }
 
 int PoolMatAggregator::getColsForField(const Pool& input, string field) {
-	if (!input.contains< vector <vector <Real> > >(field)) {
-		throw EssentiaException("PoolMatAggregator tried to use a field with the wrong type: " + field);
-	}
-	
-	vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(field);
-	int cols = input_data[0].size();
-	for (int i = 0; i < input_data.size(); i++) {
-		if (input_data[i].size() != cols) {
-			throw EssentiaException("PoolMatAggregator requires each intance of a given field to have constant width: " + field);
+	int cols = -1;
+	if (input.contains< vector <vector <Real> > >(field)) {
+		// Values were added as vector<Real>
+		vector< vector<Real> > input_data = input.value< vector <vector<Real> > >(field);
+		cols = input_data[0].size();
+		for (int i = 0; i < input_data.size(); i++) {
+			if (input_data[i].size() != cols) {
+				throw EssentiaException("PoolMatAggregator requires each intance of a given field to have constant width: " + field);
+			}
 		}
+	}
+	else if (input.contains< vector <Real> >(field)) {
+		cols = 1;
+	}
+	else {
+		throw EssentiaException("PoolMatAggregator tried to use a field with the wrong type: " + field);
 	}
 	return cols;
 }
@@ -77,14 +92,26 @@ int PoolMatAggregator::getColsForField(const Pool& input, string field) {
 int PoolMatAggregator::getNumSamples(const Pool& input) {
 	int num_samples = -1;
 	for (int i = 0; i < _fields.size(); i++) {
-		if (!input.contains< vector <vector <Real> > >(_fields[i])) {
+		if (input.contains< vector <vector <Real> > >(_fields[i])) {
+			// Values were added as vector<Real>
+			if ( (input.value< vector <vector <Real> > >(_fields[i])).size() != num_samples && num_samples != -1 ) 	{
+				throw EssentiaException("PoolMatAggregator requires all fields to have the same number of samples: " + _fields[i]);
+			}
+			if (num_samples == -1) {
+				num_samples = input.value< vector <vector <Real> > >(_fields[i]).size();
+			}
+		}
+		else if (input.contains< vector <Real> >(_fields[i])) {
+			// Values were added as <Real>
+			if ( (input.value< vector <Real> >(_fields[i])).size() != num_samples && num_samples != -1 ) 	{
+				throw EssentiaException("PoolMatAggregator requires all fields to have the same number of samples: " + _fields[i]);
+			}
+			if (num_samples == -1) {
+				num_samples = input.value< vector <Real> >(_fields[i]).size();
+			}
+		}
+		else {
 			throw EssentiaException("PoolMatAggregator tried to use a field with the wrong type: " + _fields[i]);
-		}
-		if ( (input.value< vector <vector <Real> > >(_fields[i])).size() != num_samples && num_samples != -1 ) 	{
-			throw EssentiaException("PoolMatAggregator requires all fields to have the same number of samples: " + _fields[i]);
-		}
-		if (num_samples == -1) {
-			num_samples = input.value< vector <vector <Real> > >(_fields[i]).size();
 		}
 	}
 	return num_samples;
