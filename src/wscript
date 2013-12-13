@@ -20,6 +20,8 @@ def options(ctx):
                    help='build the vamp plugin wrapper')
     ctx.add_option('--with-opencv', action='store_true',
                    dest='WITH_OPENCV', default=False)
+    ctx.add_option('--with-jack', action='store_true',
+                   dest='WITH_JACK', default=False)
 
     #add option --with-gaia
 
@@ -44,6 +46,7 @@ def configure(ctx):
     ctx.env.WITH_VAMP     = ctx.options.WITH_VAMP
     ctx.env.WITH_STATIC_EXAMPLES = ctx.options.WITH_STATIC_EXAMPLES
     ctx.env.WITH_OPENCV   = ctx.options.WITH_OPENCV
+    ctx.env.WITH_JACK     = ctx.options.WITH_JACK
 
     if ctx.env.WITH_STATIC_EXAMPLES:
         ctx.env.WITH_EXAMPLES = True
@@ -102,6 +105,10 @@ def configure(ctx):
     if ctx.env.WITH_OPENCV:
         ctx.check_cfg(package='opencv', uselib_store='OPENCV',
                   args=['--cflags', '--libs'])
+
+    if ctx.env.WITH_JACK:
+        ctx.check_cfg(package='jack', uselib_store='JACK',
+                  args=['--libs'])
 
 
 
@@ -168,6 +175,12 @@ def configure(ctx):
         ctx.env.USES += ' OPENCV'
     else:
         print('- OpenCV seems to be missing.')    
+
+    if has('jack'):
+        print('- jack detected!')
+        ctx.env.USES += ' JACK'
+    else:
+        print('- jack seems to be missing.')
 
 
     print('=======================================================================================')
