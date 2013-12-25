@@ -87,6 +87,7 @@ def build(ctx):
                                    'extractorsfx',
                                    'extractorpanning',
                                    'extractorpostprocess' ])
+        build_example('streaming', 'jack_mfcc')
 
         # OUTDATED:
         #build_example('streaming', 'schizo_extractor',
@@ -139,6 +140,14 @@ def build(ctx):
                         includes = [ '.', '..' ,'../..'],
                         use      = 'essentia ' + ctx.env.USES,
                         install_path = None)
+
+        freesound_files[0] = 'streaming_freesound_lowlevel.cpp'
+        ctx.program(source = ctx.path.ant_glob(' '.join(freesound_files)),
+                        target = 'streaming_freesound_lowlevel',
+                        includes = [ '.', '..' ,'../..'],
+                        use      = 'essentia ' + ctx.env.USES,
+                        install_path = None)
+                           
 
 
 
