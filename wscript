@@ -32,7 +32,7 @@ def configure(ctx):
     ctx.env.WITH_CPPTESTS = ctx.options.WITH_CPPTESTS
 
     # compiler flags
-    ctx.env.CXXFLAGS = [ '-pipe', '-Wall' ]
+    ctx.env.CXXFLAGS = [ '-pipe', '-Wall', '-g' ]
 
     # define this to be stricter, but sometimes some libraries can give problems...
     #ctx.env.CXXFLAGS += [ '-Werror' ]

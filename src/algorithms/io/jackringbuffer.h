@@ -15,7 +15,6 @@
 namespace essentia {
 namespace streaming {
 
-// To Do: Find a nicer way to wrap these C callbacks inside the class
 int jack_process_cb(jack_nframes_t nframes, void *arg);
 void jack_shutdown_cb(void * arg);
 
@@ -23,14 +22,16 @@ void jack_shutdown_cb(void * arg);
 class JackRingBuffer : public Algorithm {
  protected:
 	Source<Real> _output;
+	Source<Real> _jackTime;
 	class RingBufferImpl* _impl;
 
-	const char *_client_name;
+	std::string _client_name;
 	const char **_ports;
 	const char *_server_name;
 	jack_options_t _options;
 	jack_status_t _status;
 	jack_client_t *_client;
+	bool _autoconnect;
 	
  public:
 	JackRingBuffer();
@@ -38,15 +39,13 @@ class JackRingBuffer : public Algorithm {
  
  
 	AlgorithmStatus process();
-	
-	
+		
 	void add(Real* inputData, int size);
-
 
 	void declareParameters() {
 		declareParameter("bufferSize", "the size of the ringbuffer", "", 8192);
 		declareParameter("client_name", "the name of the jack client", "", "essentia");
-		//declareParameter("autoconnect", "Whether or not to try to connect automatically to the default input", "", false);
+		declareParameter("autoconnect", "Connect to system input/output defaults automatically", "", true);
 	}
 
 	void configure();
