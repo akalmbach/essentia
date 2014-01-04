@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   
   Algorithm* audio = factory.create("JackRingBuffer", "client_name", "essentia", "bufferSize", 16384);
   SourceBase& source = audio->output("signal");
-  connect(audio->output("Jack Time"), features, "clock", &cout);
+  connect(audio->output("time"), features, "clock", &cout);
 
  	
   FreesoundLowlevelDescriptors *lowlevel = new FreesoundLowlevelDescriptors();

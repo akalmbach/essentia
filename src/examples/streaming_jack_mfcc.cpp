@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   Pool pool;
   AlgorithmFactory& factory = streaming::AlgorithmFactory::instance();
 
-  Algorithm* audio = factory.create("JackRingBuffer", "client_name", "essentia", "bufferSize", 16384, "autoconnect", true);
+  Algorithm* audio = factory.create("JackRingBuffer", "client_name", "essentia", "autoconnect", true);
 
   Algorithm* fc    = factory.create("FrameCutter",
                                     "frameSize", frameSize,
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 
   // Audio -> FrameCutter
   audio->output("signal")    >>  fc->input("signal");
-  audio->output("Jack Time") >>  PC(pool, "clock", &cout);                        
+  audio->output("time") >>  PC(pool, "clock", &cout);                        
 
   // FrameCutter -> Windowing -> Spectrum
   fc->output("frame")       >>  w->input("frame");

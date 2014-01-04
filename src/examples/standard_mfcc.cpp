@@ -29,14 +29,18 @@ using namespace essentia::standard;
 
 int main(int argc, char* argv[]) {
 
-  if (argc != 3) {
+  if (argc < 3) {
     cout << "ERROR: incorrect number of arguments." << endl;
-    cout << "Usage: " << argv[0] << " audio_input yaml_output" << endl;
+    cout << "Usage: " << argv[0] << " audio_input yaml_output (--full)" << endl;
     exit(1);
   }
 
   string audioFilename = argv[1];
   string outputFilename = argv[2];
+  bool full = false;
+  if (argc == 4 && string(argv[3]) == "--full"){
+    full = true;
+  }
 
   // register the algorithms in the factory(ies)
   essentia::init();
@@ -47,9 +51,6 @@ int main(int argc, char* argv[]) {
   int sampleRate = 44100;
   int frameSize = 2048;
   int hopSize = 1024;
-
-  // we want to compute the MFCC of a file: we need the create the following:
-  // audioloader -> framecutter -> windowing -> FFT -> MFCC
 
   AlgorithmFactory& factory = standard::AlgorithmFactory::instance();
 
@@ -141,7 +142,12 @@ int main(int argc, char* argv[]) {
 
   Algorithm* output = AlgorithmFactory::create("YamlOutput",
                                                "filename", outputFilename);
-  output->input("pool").set(aggrPool);
+  if (full){
+    output->input("pool").set(pool);
+  }
+  else {
+    output->input("pool").set(aggrPool);
+  }
   output->compute();
 
   delete audio;
