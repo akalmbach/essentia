@@ -1,9 +1,3 @@
-/** @file simple_client.cpp
- *
- * @brief This simple client demonstrates the most basic features of JACK
- * as they would be used by many applications.
- */
-
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
@@ -18,7 +12,7 @@
 using namespace std;
 namespace essentia {
 namespace streaming {
-	
+    
 const char* JackRingBuffer::name = "JackRingBuffer";
 const char* JackRingBuffer::description = DOC(
 "This algorithm creates a jack client and outputs its data via a ringbuffer."
@@ -28,9 +22,9 @@ const char* JackRingBuffer::description = DOC(
  * JACK calls this shutdown_callback if the server ever shuts down or
  * decides to disconnect the client.
  */
-void jack_shutdown_cb(void *arg) {	
-	JackRingBuffer* jrb = (JackRingBuffer *) arg;
-	jrb->_shouldStop = true;
+void jack_shutdown_cb(void *arg) {    
+    JackRingBuffer* jrb = (JackRingBuffer *) arg;
+    jrb->_shouldStop = true;
 }
 
 /**
@@ -44,140 +38,140 @@ void jack_shutdown_cb(void *arg) {
  * copies it to the output port.
  */
 int jack_process_cb(jack_nframes_t nframes, void *arg) {
-	jack_default_audio_sample_t *in, *out;
-	
-	JackRingBuffer* jrb = (JackRingBuffer *) arg;
-	
-	in = (jack_default_audio_sample_t *)
-		jack_port_get_buffer (jrb->_input_port, nframes);
-	out = (jack_default_audio_sample_t *)
-		jack_port_get_buffer (jrb->_output_port, nframes);
-		
-	jrb->add(in, nframes);
-	memcpy (out, in,
-		sizeof (jack_default_audio_sample_t) * nframes);
+    jack_default_audio_sample_t *in, *out;
+    
+    JackRingBuffer* jrb = (JackRingBuffer *) arg;
+    
+    in = (jack_default_audio_sample_t *)
+        jack_port_get_buffer(jrb->_input_port, nframes);
+    out = (jack_default_audio_sample_t *)
+        jack_port_get_buffer(jrb->_output_port, nframes);
+        
+    jrb->add(in, nframes);
+    memcpy(out, in,
+        sizeof (jack_default_audio_sample_t) * nframes);
 
-	return 0;   
+    return 0;   
 }
 
 JackRingBuffer::JackRingBuffer():_impl(0), _shouldStop(false) {
-  declareOutput(_output, 1024, "signal", "data source of what's coming from the ringbuffer");
-  declareOutput(_jackTime, "Jack Time", "the current time of the JACK transport"); 
-  _output.setBufferType(BufferUsage::forAudioStream);
+    declareOutput(_output, 1024, "signal", "data source of what's coming from the ringbuffer");
+    declareOutput(_jackTime, "time", "the current time of the JACK transport"); 
+    _output.setBufferType(BufferUsage::forAudioStream);
 }
 
 JackRingBuffer::~JackRingBuffer() {
-	delete _impl;
+    delete _impl;
 }
 
 void JackRingBuffer::configure() {
-	delete _impl;
-	_impl = new RingBufferImpl(RingBufferImpl::kAvailable, parameter("bufferSize").toInt());
-	_client_name = parameter("client_name").toString();
-	_autoconnect = parameter("autoconnect").toBool();
-	cout << "Creating a JACK client with name " << _client_name << endl;
-	
-	/* open a client connection to the JACK server */
-	_client = jack_client_open(_client_name.c_str(), _options, &_status, _server_name);
-	if (_client == NULL) {
-		cerr << "jack_client_open() failed, status = " << _status << endl;
-		if (_status & JackServerFailed) {
-			cerr << "Unable to connect to JACK server" << endl;
-		}
-		return;
-	}
-	if (_status & JackServerStarted) {
-		cerr << "JACK server started" << endl;
-	}
-	if (_status & JackNameNotUnique) {
-		_client_name = jack_get_client_name(_client);
-		cerr << "uniqe name `" << _client_name << "' assigned" << endl;
-	}
+    delete _impl;
+    _impl = new RingBufferImpl(RingBufferImpl::kAvailable, parameter("bufferSize").toInt());
+    _client_name = parameter("client_name").toString();
+    _autoconnect = parameter("autoconnect").toBool();
+    cout << "Creating a JACK client with name " << _client_name << endl;
+    
+    /* open a client connection to the JACK server */
+    _client = jack_client_open(_client_name.c_str(), _options, &_status, _server_name);
+    if (_client == NULL) {
+        cerr << "jack_client_open() failed, status = " << _status << endl;
+        if (_status & JackServerFailed) {
+            cerr << "Unable to connect to JACK server" << endl;
+        }
+        return;
+    }
+    if (_status & JackServerStarted) {
+        cerr << "JACK server started" << endl;
+    }
+    if (_status & JackNameNotUnique) {
+        _client_name = jack_get_client_name(_client);
+        cerr << "uniqe name `" << _client_name << "' assigned" << endl;
+    }
 
-	/* tell the JACK server to call `jack_process_cb(this)' whenever
-	   there is work to be done.
-	*/
-	jack_set_process_callback(_client, jack_process_cb, this);
+    /* tell the JACK server to call `jack_process_cb(this)' whenever
+       there is work to be done.
+    */
+    jack_set_process_callback(_client, jack_process_cb, this);
 
-	/* tell the JACK server to call `jack_shutdown_cb(this)' if
-	   it ever shuts down, either entirely, or if it
-	   just decides to stop calling us.
-	*/
-	jack_on_shutdown (_client, jack_shutdown_cb, this);
+    /* tell the JACK server to call `jack_shutdown_cb(this)' if
+       it ever shuts down, either entirely, or if it
+       just decides to stop calling us.
+    */
+    jack_on_shutdown (_client, jack_shutdown_cb, this);
 
-	/* create two ports */
-	_input_port = jack_port_register(_client, "input",
-					 JACK_DEFAULT_AUDIO_TYPE,
-					 JackPortIsInput, 0);
-					 
-	_output_port = jack_port_register(_client, "output",
-					  JACK_DEFAULT_AUDIO_TYPE,
-					  JackPortIsOutput, 0);
+    /* create two ports */
+    _input_port = jack_port_register(_client, "input",
+                     JACK_DEFAULT_AUDIO_TYPE,
+                     JackPortIsInput, 0);
+                     
+    _output_port = jack_port_register(_client, "output",
+                      JACK_DEFAULT_AUDIO_TYPE,
+                      JackPortIsOutput, 0);
 
-	if ((_input_port == NULL) || (_output_port == NULL)) {
-		cerr << "no more JACK ports available" << endl;
-	}
+    if ((_input_port == NULL) || (_output_port == NULL)) {
+        cerr << "no more JACK ports available" << endl;
+    }
 
-	/* Tell the JACK server that we are ready to roll.  Our
-	 * jack_process_cb callback will start running now. */
-	if (jack_activate(_client)) {
-		cerr << "cannot activate client" << endl;
-		return;
-	}
+    /* Tell the JACK server that we are ready to roll.  Our
+     * jack_process_cb callback will start running now. */
+    if (jack_activate(_client)) {
+        cerr << "cannot activate client" << endl;
+        return;
+    }
 
-	if (_autoconnect) {
-		/* Connect the ports.  You can't do this before the client is
-		 * activated, because we can't make connections to clients
-		 * that aren't running.  Note the confusing (but necessary)
-		 * orientation of the driver backend ports: playback ports are
-		 * "input" to the backend, and capture ports are "output" from
-		 * it.
-		 */	 
-		_ports = jack_get_ports(_client, NULL, NULL,
-					JackPortIsPhysical|JackPortIsOutput);
-		if (_ports == NULL) {
-			cerr << "no physical capture ports" << endl;
-		}
-	
-		if (jack_connect(_client, _ports[0], jack_port_name(_input_port))) {
-			cerr << "cannot connect input ports" << endl;
-		}
-		free (_ports);
-	
-		_ports = jack_get_ports (_client, NULL, NULL,
-					JackPortIsPhysical|JackPortIsInput);
-		if (_ports == NULL) {
-			cerr << "no physical playback ports" << endl;
-		}
-		
-		if (jack_connect (_client, jack_port_name(_output_port), _ports[0])) {
-			cerr << "cannot connect output ports" << endl;
-		}
-	
-		free (_ports);	
-	}
+    if (_autoconnect) {
+        /* Connect the ports.  You can't do this before the client is
+         * activated, because we can't make connections to clients
+         * that aren't running.  Note the confusing (but necessary)
+         * orientation of the driver backend ports: playback ports are
+         * "input" to the backend, and capture ports are "output" from
+         * it.
+         */     
+        _ports = jack_get_ports(_client, NULL, NULL,
+                    JackPortIsPhysical|JackPortIsOutput);
+        if (_ports == NULL) {
+            cerr << "no physical capture ports" << endl;
+        }
+    
+        if (jack_connect(_client, _ports[0], jack_port_name(_input_port))) {
+            cerr << "cannot connect input ports" << endl;
+        }
+        free (_ports);
+    
+        _ports = jack_get_ports (_client, NULL, NULL,
+                    JackPortIsPhysical|JackPortIsInput);
+        if (_ports == NULL) {
+            cerr << "no physical playback ports" << endl;
+        }
+        
+        if (jack_connect (_client, jack_port_name(_output_port), _ports[0])) {
+            cerr << "cannot connect output ports" << endl;
+        }
+    
+        free (_ports);    
+    }
 }
 
 void JackRingBuffer::add(Real* inputData, int size) {
-	//std::cerr << "adding " << size << " to ringbuffer with space " << _impl->_space << std::endl;
-	int added = _impl->add(inputData,size);
-	if (added < size) throw EssentiaException("Not enough space in ringbuffer at input");
+    //std::cerr << "adding " << size << " to ringbuffer with space " << _impl->_space << std::endl;
+    int added = _impl->add(inputData,size);
+    if (added < size) throw EssentiaException("Not enough space in ringbuffer at input");
 }
 
 
 AlgorithmStatus JackRingBuffer::process() {
   if (_shouldStop) {
-	  printf("finished\n");
-	  return NO_OUTPUT;
+      //cerr << "finished" << endl;
+      return NO_OUTPUT;
   }
-  //std::cerr << "ringbufferinput waiting" << std::endl;
+  //cerr << "ringbufferinput waiting" << endl;
   _impl->waitAvailable();
-  //std::cerr << "ringbufferinput waiting done" << std::endl;
+  //cerr << "ringbufferinput waiting done" << endl;
   AlgorithmStatus status = acquireData();
   //printf("acquired data\n");
 
   if (status != OK) {
-    std::cerr << "leaving the ringbufferinput while loop" << std::endl;
+    cerr << "leaving the ringbufferinput while loop" << endl;
     if (status == NO_OUTPUT) throw EssentiaException("internal error: output buffer full");
     return status;
   }
@@ -186,11 +180,12 @@ AlgorithmStatus JackRingBuffer::process() {
   AudioSample* outputData = &(outputSignal[0]);
   int outputSize = outputSignal.size();
 
-  //std::cerr << "ringbufferinput getting" << outputSize << endl;
+  //cerr << "ringbufferinput getting" << outputSize << endl;
   int size = _impl->get(outputData, outputSize);
   //std::cerr << "got " << size << " from ringbuffer with space " << _impl->_space << std::endl;
 
   _output.setReleaseSize(size);
+  //jack_get_time() is in usecs, we want secs
   _jackTime.push((Real) (jack_get_time()/1000000.0));  
     
   releaseData();
@@ -205,7 +200,7 @@ void JackRingBuffer::reset() {
   _impl->reset();
 }
 
-}
-}
+} //streaming
+} //essentia
 
 
