@@ -1,12 +1,11 @@
 this fork
 =========
 
-Essentia provides great facilities for audio processing, but it lacks a nice interface to some standard
-machine learning tools that I want to play with. This fork will include an interface to as many of the
-OpenCV ML Module tools as possible [k-nearest-neighbors, random forest, svm, ... ] and hopefully some topic 
-modelling tools as well.
+essentia provides great batch processing facilities, but the ability to do live processing is lacking.
+I've added a class to interface in real time with the JACK audio server, and made a couple examples
+on how to use it. I've also modified poolstorage so that it can spit its output directly to a file object
+so that another program could do something with the data.
 
-See http://docs.opencv.org/modules/ml/doc/ml.html for tools that could get included.
 
 essentia
 ========
