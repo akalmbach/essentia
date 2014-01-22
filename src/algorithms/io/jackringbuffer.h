@@ -20,11 +20,9 @@ class JackRingBuffer : public Algorithm {
     class RingBufferImpl* _impl;
 
     std::string _client_name;
-    const char **_ports;
     const char *_server_name;
     jack_options_t _options;
     jack_status_t _status;
-    jack_client_t *_client;
     bool _autoconnect;
     
  public:
@@ -51,6 +49,8 @@ class JackRingBuffer : public Algorithm {
         
     jack_port_t *_input_port;
     jack_port_t *_output_port;
+    jack_client_t *_client;
+
         
 };
 

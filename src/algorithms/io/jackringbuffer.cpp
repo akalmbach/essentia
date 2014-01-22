@@ -22,9 +22,13 @@ const char* JackRingBuffer::description = DOC(
  * JACK calls this shutdown_callback if the server ever shuts down or
  * decides to disconnect the client.
  */
-void jack_shutdown_cb(void *arg) {    
+void jack_shutdown_cb(void *arg) {
+    cout << "JACK SHUTDOWN!!" << endl;
     JackRingBuffer* jrb = (JackRingBuffer *) arg;
-    jrb->_shouldStop = true;
+    jack_client_close(jrb->_client);
+    // TODO: Magic Number
+    Real blankBuf[1024];
+    jrb->add(blankBuf, 1024);
 }
 
 /**
@@ -127,7 +131,7 @@ void JackRingBuffer::configure() {
          * "input" to the backend, and capture ports are "output" from
          * it.
          */     
-        _ports = jack_get_ports(_client, NULL, NULL,
+        const char **_ports = jack_get_ports(_client, NULL, NULL,
                     JackPortIsPhysical|JackPortIsOutput);
         if (_ports == NULL) {
             cerr << "no physical capture ports" << endl;
@@ -147,25 +151,24 @@ void JackRingBuffer::configure() {
         if (jack_connect (_client, jack_port_name(_output_port), _ports[0])) {
             cerr << "cannot connect output ports" << endl;
         }
-    
-        free (_ports);    
     }
 }
 
 void JackRingBuffer::add(Real* inputData, int size) {
     //std::cerr << "adding " << size << " to ringbuffer with space " << _impl->_space << std::endl;
-    int added = _impl->add(inputData,size);
+    int added = _impl->add(inputData, size);
     if (added < size) throw EssentiaException("Not enough space in ringbuffer at input");
 }
 
 
 AlgorithmStatus JackRingBuffer::process() {
-  if (_shouldStop) {
-      //cerr << "finished" << endl;
-      return NO_OUTPUT;
-  }
   //cerr << "ringbufferinput waiting" << endl;
   _impl->waitAvailable();
+  cout << "hit" << endl;
+  if (_shouldStop) {
+      cout << "ESSENTIA SHUTDOWN!!!" << endl;
+      return NO_INPUT;
+  }
   //cerr << "ringbufferinput waiting done" << endl;
   AlgorithmStatus status = acquireData();
   //printf("acquired data\n");
@@ -185,8 +188,8 @@ AlgorithmStatus JackRingBuffer::process() {
   //std::cerr << "got " << size << " from ringbuffer with space " << _impl->_space << std::endl;
 
   _output.setReleaseSize(size);
-  //jack_get_time() is in usecs, we want secs
-  _jackTime.push((Real) (jack_get_time()/1000000.0));  
+  //jack_get_time() is in usecs, we want mins
+  _jackTime.push((Real) (jack_get_time()/60000000.0));  
     
   releaseData();
   

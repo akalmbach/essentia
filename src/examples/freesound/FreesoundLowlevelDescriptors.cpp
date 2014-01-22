@@ -38,7 +38,7 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
 
   string silentFrames ="noise";
   string windowType = "hann";
-
+  
   // FrameCutter
   Algorithm* fc = factory.create("FrameCutter",
                                  "frameSize", frameSize,
@@ -60,6 +60,11 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
   connect(sr->output("threshold_0"), pool, nameSpace + "silence_rate_20dB", &cout);
   connect(sr->output("threshold_1"), pool, nameSpace + "silence_rate_30dB", &cout);
   connect(sr->output("threshold_2"), pool, nameSpace + "silence_rate_60dB", &cout);
+  vector<string> silence_fields;
+  silence_fields.push_back(nameSpace + "silence_rate_20dB");
+  silence_fields.push_back(nameSpace + "silence_rate_20dB");
+  silence_fields.push_back(nameSpace + "silence_rate_20dB");
+  fields.push_back(silence_fields);
 
 
   // Windowing
@@ -78,14 +83,18 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
   Algorithm* zcr = factory.create("ZeroCrossingRate");
   connect(zcr->input("signal"), fc->output("frame"));
   connect(zcr->output("zeroCrossingRate"), pool, nameSpace + "zerocrossingrate", &cout);
-
+  vector<string> temporal_fields;
+  temporal_fields.push_back(nameSpace + "zerocrossingrate");
+  fields.push_back(temporal_fields);
 
   // MFCC
   Algorithm* mfcc = factory.create("MFCC");
   connect(spec->output("spectrum"), mfcc->input("spectrum"));
   connect(mfcc->output("bands"), NOWHERE);
   connect(mfcc->output("mfcc"), pool, nameSpace + "mfcc", &cout);
-
+  vector<string> mfcc_fields;
+  mfcc_fields.push_back(nameSpace + "mfcc");
+  fields.push_back(mfcc_fields);
 
   // Spectral Decrease
   Algorithm* square = factory.create("UnaryOperator", "type", "square");
@@ -93,9 +102,8 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
                                        "range", analysisSampleRate * 0.5);
   connect(spec->output("spectrum"), square->input("array"));
   connect(square->output("array"), decrease->input("array"));
-  connect(decrease->output("decrease"), pool, nameSpace + "spectral_decrease",&cout);
-
-
+  connect(decrease->output("decrease"), pool, nameSpace + "spectral_decrease", &cout);
+  
   // Spectral Energy
   Algorithm* energy = factory.create("Energy");
   connect(spec->output("spectrum"), energy->input("array"));
@@ -127,12 +135,23 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
                                      "stopCutoffFrequency", 20000.0);
   connect(spec->output("spectrum"), ebr_hi->input("spectrum"));
   connect(ebr_hi->output("energyBand"), pool, nameSpace + "spectral_energyband_high",&cout);
+  
+  vector<string> spec_fields;
+  spec_fields.push_back(nameSpace + "spectral_decrease");
+  spec_fields.push_back(nameSpace + "spectral_energy");
+  spec_fields.push_back(nameSpace + "spectral_energyband_low");
+  spec_fields.push_back(nameSpace + "spectral_energyband_middle_low");
+  spec_fields.push_back(nameSpace + "spectral_energyband_middle_high");
+  spec_fields.push_back(nameSpace + "spectral_energyband_high");
+  fields.push_back(spec_fields);
 
 
   // Spectral HFC
   Algorithm* hfc = factory.create("HFC");
   connect(spec->output("spectrum"), hfc->input("spectrum"));
-  connect(hfc->output("hfc"), pool, nameSpace + "hfc",&cout);
+  connect(hfc->output("hfc"), pool, nameSpace + "hfc", &cout);
+  vector<string> hfc_fields;
+  hfc_fields.push_back(nameSpace + "hfc");
 
 
   // Spectral Frequency Bands

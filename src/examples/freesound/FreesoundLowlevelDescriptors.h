@@ -29,6 +29,7 @@ using namespace std;
 
  public:
  	static const string nameSpace;  
+  vector<vector<string> > fields;
 
  	void createNetwork(SourceBase& source, Pool& pool);
 	void computeAverageLoudness(Pool& pool);

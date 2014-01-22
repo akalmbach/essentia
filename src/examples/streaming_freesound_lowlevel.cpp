@@ -47,6 +47,12 @@ int main(int argc, char* argv[]) {
   
   Network network(audio, true);
   network.run();
+  
+  for (int i = 0; i < lowlevel->fields.size(); i++) {
+    cout << lowlevel->fields[i] << endl;
+    standard::Algorithm* mat_aggregator = standard::AlgorithmFactory::create("PoolMatAggregator", "fields", lowlevel->fields[i]);
+  }
+  
 
   return 0;
 }
