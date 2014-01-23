@@ -23,12 +23,13 @@ const char* JackRingBuffer::description = DOC(
  * decides to disconnect the client.
  */
 void jack_shutdown_cb(void *arg) {
-    cout << "JACK SHUTDOWN!!" << endl;
     JackRingBuffer* jrb = (JackRingBuffer *) arg;
-    jack_client_close(jrb->_client);
     // TODO: Magic Number
+    // Ensures that process() is called one last time
     Real blankBuf[1024];
     jrb->add(blankBuf, 1024);
+    jrb->_shouldStop = true;
+    cout << "JACK SHUTDOWN" << endl;
 }
 
 /**
@@ -164,10 +165,10 @@ void JackRingBuffer::add(Real* inputData, int size) {
 AlgorithmStatus JackRingBuffer::process() {
   //cerr << "ringbufferinput waiting" << endl;
   _impl->waitAvailable();
-  cout << "hit" << endl;
   if (_shouldStop) {
-      cout << "ESSENTIA SHUTDOWN!!!" << endl;
-      return NO_INPUT;
+      cout << "ESSENTIA SHUTDOWN" << endl;
+      shouldStop(true);
+      return NO_OUTPUT;
   }
   //cerr << "ringbufferinput waiting done" << endl;
   AlgorithmStatus status = acquireData();

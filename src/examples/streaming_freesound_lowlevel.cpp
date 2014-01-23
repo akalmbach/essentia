@@ -24,6 +24,8 @@
 #include  "essentia/streaming/sourcebase.h"
 #include  "essentia/streaming/streamingalgorithm.h"
 #include "freesound/FreesoundLowlevelDescriptors.h"
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 using namespace std;
 using namespace essentia;
@@ -48,11 +50,18 @@ int main(int argc, char* argv[]) {
   Network network(audio, true);
   network.run();
   
+  cv::namedWindow("window", CV_WINDOW_NORMAL);
   for (int i = 0; i < lowlevel->fields.size(); i++) {
     cout << lowlevel->fields[i] << endl;
     standard::Algorithm* mat_aggregator = standard::AlgorithmFactory::create("PoolMatAggregator", "fields", lowlevel->fields[i]);
+    mat_aggregator->input("input").set(features);
+    cv::Mat aggr;
+    mat_aggregator->output("output").set(aggr);
+    mat_aggregator->compute();
+    cv::imshow("window", aggr);
+    cv::waitKey(0);
   }
-  
+
 
   return 0;
 }

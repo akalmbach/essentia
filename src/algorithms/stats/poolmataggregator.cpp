@@ -40,10 +40,12 @@ void PoolMatAggregator::compute() {
 	for (int i = 0; i < _fields.size(); i++) {
 		cols += getColsForField(input, _fields[i]);
 	}
+  cout << "rows: " << rows << ", cols: " << cols << endl;
 
 	Mat& output = _output.get();
 	output = Mat::zeros(rows, cols, CV_32FC1);
-	
+  cout << output.rows << " " << output.cols << endl;
+
 	// TODO: Better names for index vars
 	int col = 0;
 	for (int i = 0; i < _fields.size(); i++) {
