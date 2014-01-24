@@ -28,8 +28,8 @@ using namespace std;
  class FreesoundLowlevelDescriptors : public FreesoundDescriptorSet{
 
  public:
- 	static const string nameSpace;  
-  vector<vector<string> > fields;
+ 	static const string nameSpace; 
+ 	vector<string> namespaces; 
 
  	void createNetwork(SourceBase& source, Pool& pool);
 	void computeAverageLoudness(Pool& pool);

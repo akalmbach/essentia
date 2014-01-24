@@ -26,11 +26,35 @@
 #include "freesound/FreesoundLowlevelDescriptors.h"
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+#include <iostream>
+#include <fstream>
+
 
 using namespace std;
 using namespace essentia;
 using namespace streaming;
 using namespace scheduler;
+
+vector<vector< double > > computeVocab(Pool features, vector<string> fields, int k) {
+	standard::Algorithm* mat_aggregator = standard::AlgorithmFactory::create("PoolMatAggregator", "fields", fields);
+    mat_aggregator->input("input").set(features);
+    cv::Mat kmeans_data, labels, centers;
+    mat_aggregator->output("output").set(kmeans_data);
+    mat_aggregator->compute();
+    cout << fields << ":" << kmeans_data.rows << endl;
+    cv::kmeans(kmeans_data, k, labels, cv::TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, k, 0.1),
+				5, cv::KMEANS_PP_CENTERS, centers);
+		
+	vector<vector<double> > vocab;
+	for (int i = 0; i < centers.rows; i++) {
+		vector<double> center;
+		for (int j = 0; j < centers.cols; j++) {
+			center.push_back(centers.at<float>(i, j));
+		}
+		vocab.push_back(center);
+	}
+	return vocab;
+}
 
 int main(int argc, char* argv[]) {
 	
@@ -41,7 +65,7 @@ int main(int argc, char* argv[]) {
   
   Algorithm* audio = factory.create("JackRingBuffer", "client_name", "essentia", "bufferSize", 16384);
   SourceBase& source = audio->output("signal");
-  connect(audio->output("time"), features, "clock", &cout);
+  connect(audio->output("time"), NOWHERE);
 
  	
   FreesoundLowlevelDescriptors *lowlevel = new FreesoundLowlevelDescriptors();
@@ -50,18 +74,26 @@ int main(int argc, char* argv[]) {
   Network network(audio, true);
   network.run();
   
-  cv::namedWindow("window", CV_WINDOW_NORMAL);
-  for (int i = 0; i < lowlevel->fields.size(); i++) {
-    cout << lowlevel->fields[i] << endl;
-    standard::Algorithm* mat_aggregator = standard::AlgorithmFactory::create("PoolMatAggregator", "fields", lowlevel->fields[i]);
-    mat_aggregator->input("input").set(features);
-    cv::Mat aggr;
-    mat_aggregator->output("output").set(aggr);
-    mat_aggregator->compute();
-    cv::imshow("window", aggr);
-    cv::waitKey(0);
-  }
+  
+  ofstream vocabfile;
+  vocabfile.open(argv[1]);
 
+  
+  for (int i = 0; i < lowlevel->namespaces.size(); i++) {
+	  // TODO: Magic number
+	  vocabfile << lowlevel->namespaces[i] << ": \n  [";
+      vector<vector<double> > vocab = computeVocab(features, features.descriptorNames(lowlevel->namespaces[i]), 500);
+      for (int j = 0; j < vocab.size(); j++) {
+		  vocabfile << "\n    [";
+		  for (int k = 0; k < vocab[j].size()-1; k++) {
+			  vocabfile << vocab[j][k] << ",";
+		  }
+		  vocabfile << vocab[j][vocab[j].size()] << "]";
+	  }
+	  vocabfile << "  ]" << endl;
+  }
+  
+  vocabfile.close();
 
   return 0;
 }
