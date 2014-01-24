@@ -37,14 +37,20 @@ using namespace scheduler;
 
 vector<vector< double > > computeVocab(Pool features, vector<string> fields, int k) {
 	standard::Algorithm* mat_aggregator = standard::AlgorithmFactory::create("PoolMatAggregator", "fields", fields);
-    mat_aggregator->input("input").set(features);
-    cv::Mat kmeans_data, labels, centers;
-    mat_aggregator->output("output").set(kmeans_data);
-    mat_aggregator->compute();
-    cout << fields << ":" << kmeans_data.rows << endl;
-    cv::kmeans(kmeans_data, k, labels, cv::TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, k, 0.1),
-				5, cv::KMEANS_PP_CENTERS, centers);
-		
+  mat_aggregator->input("input").set(features);
+  cv::Mat kmeans_data, labels, centers;
+  mat_aggregator->output("output").set(kmeans_data);
+  mat_aggregator->compute();
+  
+  cout << fields << ":" << kmeans_data.rows << "," << kmeans_data.cols << endl;
+    
+  cv::namedWindow("window", CV_WINDOW_NORMAL);
+  cv::imshow("window", kmeans_data);
+  cv::waitKey(0);
+  
+  cv::kmeans(kmeans_data, k, labels, cv::TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 100, 0.000001),
+      5, cv::KMEANS_RANDOM_CENTERS, centers);
+      		
 	vector<vector<double> > vocab;
 	for (int i = 0; i < centers.rows; i++) {
 		vector<double> center;
@@ -82,7 +88,7 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < lowlevel->namespaces.size(); i++) {
 	  // TODO: Magic number
 	  vocabfile << lowlevel->namespaces[i] << ": \n  [";
-      vector<vector<double> > vocab = computeVocab(features, features.descriptorNames(lowlevel->namespaces[i]), 500);
+      vector<vector<double> > vocab = computeVocab(features, features.descriptorNames(lowlevel->namespaces[i]), 100);
       for (int j = 0; j < vocab.size(); j++) {
 		  vocabfile << "\n    [";
 		  for (int k = 0; k < vocab[j].size()-1; k++) {

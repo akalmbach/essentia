@@ -36,7 +36,7 @@ void PoolMatAggregator::compute() {
 	const Pool& input = _input.get();
 	
 	int rows = getNumSamples(input);
-	int cols = 0;
+	int cols = 1;
 	for (int i = 0; i < _fields.size(); i++) {
 		cols += getColsForField(input, _fields[i]);
 	}
@@ -61,7 +61,6 @@ void PoolMatAggregator::compute() {
 			for (int row = 0; row < rows; row++) {
 				output.at<float>(row, col) = input_data[row];
 			}
-			col++;
 		}
 	}
 
