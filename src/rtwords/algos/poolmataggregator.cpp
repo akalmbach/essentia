@@ -36,12 +36,13 @@ void PoolMatAggregator::compute() {
 	const Pool& input = _input.get();
 	
 	int rows = getNumSamples(input);
-	int cols = 1;
+	int cols = 0;
 	for (int i = 0; i < _fields.size(); i++) {
 		cols += getColsForField(input, _fields[i]);
 	}
 
 	Mat& output = _output.get();
+
 	output = Mat::zeros(rows, cols, CV_32FC1);
 
 	// TODO: Better names for index vars
@@ -61,6 +62,7 @@ void PoolMatAggregator::compute() {
 			for (int row = 0; row < rows; row++) {
 				output.at<float>(row, col) = input_data[row];
 			}
+			col++;
 		}
 	}
 

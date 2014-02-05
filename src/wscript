@@ -18,10 +18,8 @@ def options(ctx):
     ctx.add_option('--with-vamp', action='store_true',
                    dest='WITH_VAMP', default=False,
                    help='build the vamp plugin wrapper')
-    ctx.add_option('--with-opencv', action='store_true',
-                   dest='WITH_OPENCV', default=False)
-    ctx.add_option('--with-jack', action='store_true',
-                   dest='WITH_JACK', default=False)
+    ctx.add_option('--with-rtwords', action='store_true',
+                   dest='WITH_RTWORDS', default=False)
 
     #add option --with-gaia
 
@@ -45,8 +43,7 @@ def configure(ctx):
     ctx.env.WITH_PYTHON   = ctx.options.WITH_PYTHON
     ctx.env.WITH_VAMP     = ctx.options.WITH_VAMP
     ctx.env.WITH_STATIC_EXAMPLES = ctx.options.WITH_STATIC_EXAMPLES
-    ctx.env.WITH_OPENCV   = ctx.options.WITH_OPENCV
-    ctx.env.WITH_JACK     = ctx.options.WITH_JACK
+    ctx.env.WITH_RTWORDS     = ctx.options.WITH_RTWORDS
 
     if ctx.env.WITH_STATIC_EXAMPLES:
         ctx.env.WITH_EXAMPLES = True
@@ -102,16 +99,14 @@ def configure(ctx):
     if ctx.env.WITH_PYTHON:
         ctx.recurse('python')
 
-    if ctx.env.WITH_OPENCV:
-        ctx.check_cfg(package='opencv', uselib_store='OPENCV',
-                  args=['--cflags', '--libs'])
-
-    if ctx.env.WITH_JACK:
+    if ctx.env.WITH_RTWORDS:
         ctx.check_cfg(package='jack', uselib_store='JACK',
                   args=['--libs'])
-
-
-
+        ctx.check_cfg(package='opencv', uselib_store='OPENCV',
+                  args=['--cflags', '--libs'])
+        ctx.recurse('rtwords')
+    
+    
     # prepare the compilation environment using the detected libraries
     print
     print('================================ CONFIGURATION SUMMARY ================================')
@@ -170,17 +165,26 @@ def configure(ctx):
         print('  The following algorithms will be ignored: %s\n' % algos)
         ctx.env.ALGOIGNORE += algos
 
+    algos = [ 'PoolMatAggregator' ]
     if has('opencv'):
         print('- OpenCV detected!')
+        print('  The following algorithms will be included: %s\n' % algos)
         ctx.env.USES += ' OPENCV'
     else:
-        print('- OpenCV seems to be missing.')    
+        print('- OpenCV seems to be missing.')  
+        print('  The following algorithms will be ignored: %s\n' % algos)  
+        ctx.env.ALGOIGNORE += algos
 
+
+    algos = [ 'JackRingBuffer' ]
     if has('jack'):
-        print('- jack detected!')
+        print('- JACK detected!')
+        print('  The following algorithms will be included: %s\n' % algos)
         ctx.env.USES += ' JACK'
     else:
-        print('- jack seems to be missing.')
+        print('- JACK seems to be missing.')
+        print('  The following algorithms will be ignored: %s\n' % algos)  
+        ctx.env.ALGOIGNORE += algos
 
 
     print('=======================================================================================')
@@ -206,8 +210,14 @@ def build(ctx):
     from utils.algorithms_info import get_all_algorithms, create_registration_cpp
     algos = get_all_algorithms(ctx.path.find_dir('algorithms').abspath(),
                                root_dir = ctx.path.abspath())
-    # select the algorithms we want to build
+    
+    # This is ugly. Have to figure out how to create my own registrar and use it
+    rtwordsalgos = get_all_algorithms(ctx.path.find_dir('rtwords/algos').abspath(),
+                               root_dir = ctx.path.abspath())
+                               
+    algos = dict(algos.items() + rtwordsalgos.items())
 
+    # select the algorithms we want to build
     if ctx.env['ALGOINCLUDE']:
         print('Building the following algorithms: %s' % ', '.join(ctx.env['ALGOINCLUDE']))
     else:
@@ -258,9 +268,11 @@ def build(ctx):
         ctx.install_files('${PREFIX}/include/' + install_dir, h)
 
 
-
     if ctx.env.WITH_EXAMPLES or ctx.env.WITH_VAMP:
         ctx.recurse('examples')
+        
+    if ctx.env.WITH_RTWORDS:
+		 ctx.recurse('rtwords')
 
     if ctx.env.WITH_PYTHON:
-        ctx.recurse('python')
+        ctx.recurse('python')		

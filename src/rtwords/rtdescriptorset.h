@@ -17,8 +17,8 @@
  * version 3 along with this program.  If not, see http://www.gnu.org/licenses/
  */
 
-#ifndef FREESOUND_DESCRIPTOR_SET_H
-#define FREESOUND_DESCRIPTOR_SET_H
+#ifndef RT_DESCRIPTOR_SET_H
+#define RT_DESCRIPTOR_SET_H
 
 
 #include "essentia/streaming/sourcebase.h"
@@ -34,7 +34,7 @@ using namespace std;
 using namespace essentia;
 using namespace essentia::streaming;
 
- class FreesoundDescriptorSet{ 
+ class RTDescriptorSet{ 
 
  public:
  	static const string nameSpace;  

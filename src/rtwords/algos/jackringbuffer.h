@@ -3,7 +3,7 @@
 #ifndef ESSENTIA_STREAMING_JACKRINGBUFFER_H
 #define ESSENTIA_STREAMING_JACKRINGBUFFER_H
 
-#include "ringbufferinput.h"
+#include "algorithms/io/ringbufferinput.h"
 #include "streamingalgorithm.h"
 
 namespace essentia {

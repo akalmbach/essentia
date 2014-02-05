@@ -54,7 +54,6 @@ def build(ctx):
     if ctx.env.WITH_EXAMPLES:
         def build_example(prefix, prog_name, other=None):
             files = [ '%s_%s.cpp' % (prefix, f) for f in [prog_name] + (other or []) ]
-
             ctx.program(source = ctx.path.ant_glob(' '.join(files)),
                         target = '%s_%s' % (prefix, prog_name),
                         includes = [ '.', '..' ],
@@ -69,6 +68,7 @@ def build(ctx):
         build_example('standard', 'fadedetection')
         build_example('standard', 'spectralcontrast')
         build_example('standard', 'rhythmtransform')
+        build_example('standard', 'kmeans')
 
         build_example('streaming', 'extractor',
                                  [ 'extractorutils',
@@ -140,14 +140,14 @@ def build(ctx):
                         includes = [ '.', '..' ,'../..'],
                         use      = 'essentia ' + ctx.env.USES,
                         install_path = None)
-
+        '''
         freesound_files[0] = 'streaming_freesound_lowlevel.cpp'
         ctx.program(source = ctx.path.ant_glob(' '.join(freesound_files)),
                         target = 'streaming_freesound_lowlevel',
                         includes = [ '.', '..' ,'../..'],
                         use      = 'essentia ' + ctx.env.USES,
                         install_path = None)
-                           
+        '''                   
 
 
 
