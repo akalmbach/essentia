@@ -17,6 +17,7 @@
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 
 #include "essentia/scheduler/network.h"
@@ -26,15 +27,17 @@
 #include "essentia/essentiautil.h"
 #include "essentia/essentia.h"
 #include "rtlowleveldescriptors.h"
+#include "3rdparty/jsonxx/jsonxx.h"
 
 using namespace std;
+using namespace jsonxx;
 using namespace essentia;
 using namespace streaming;
 using namespace scheduler;
 
-vector<vector< double > > computeVocab(Pool features, vector<string> fields, int k) {
+vector<vector< double > > computeVocab(Pool pool, vector<string> fields, int k) {
   standard::Algorithm* mat_aggregator = standard::AlgorithmFactory::create("PoolMatAggregator", "fields", fields);
-  mat_aggregator->input("input").set(features);
+  mat_aggregator->input("input").set(pool);
   cv::Mat kmeans_data, labels, centers;
   mat_aggregator->output("output").set(kmeans_data);
   mat_aggregator->compute();
@@ -54,17 +57,15 @@ vector<vector< double > > computeVocab(Pool features, vector<string> fields, int
 }
 
 int main(int argc, char* argv[]) {
-	
   essentia::init();
 	
   AlgorithmFactory& factory = AlgorithmFactory::instance();
-  Pool features;
   
   Algorithm* audio = factory.create("JackRingBuffer", "client_name", "essentia", "bufferSize", 16384);
   SourceBase& source = audio->output("signal");
   connect(audio->output("time"), NOWHERE);
 
-  RTLowlevelDescriptors *lowlevel = new RTLowlevelDescriptors(features);
+  RTLowlevelDescriptors *lowlevel = new RTLowlevelDescriptors();
   lowlevel->createNetwork(source);
   
   Network network(audio, true);
@@ -72,31 +73,28 @@ int main(int argc, char* argv[]) {
   
   
   ofstream vocabfile;
+  ofstream testjsonfile;
   vocabfile.open(argv[1]);
   
-  vocabfile << "[" << endl;
-
+  Object vocab_json;
   for (unsigned int i = 0; i < lowlevel->namespaces.size(); i++) {
-	vocabfile << "  {\"" << lowlevel->namespaces[i] << "\":\n    [" << endl;
-	
-    vector<vector<double> > vocab = computeVocab(features, features.descriptorNames(lowlevel->namespaces[i]), 500);
+    Object feature_json;
+    	
+    vector<vector<double> > vocab = computeVocab(lowlevel->pool, lowlevel->pool.descriptorNames(lowlevel->namespaces[i]), 5);
+    
     for (unsigned int j = 0; j < vocab.size(); j++) {
-	  vocabfile << "      [";
-	  for (unsigned int k = 0; k < vocab[j].size(); k++) {
-	    vocabfile << vocab[j][k];
-	    if (k != vocab[j].size()-1) vocabfile << ",";
-	  }
-	  vocabfile << "]";
-	  if (j != vocab.size()-1) vocabfile << ",";
-	  vocabfile << endl;
-	}
-	vocabfile << "    ]" << endl;
-	vocabfile << "  }";
-	if (i != lowlevel->namespaces.size()-1) vocabfile << ",";
-	vocabfile << endl;
+      Array sample_json;
+      for (unsigned int k = 0; k < vocab[j].size(); k++) {
+        sample_json << vocab[j][k];
+      }
+      stringstream convert;
+      convert << j;
+      feature_json << convert.str() << sample_json;
+    }
+    vocab_json << lowlevel->namespaces[i] << feature_json;
   }
-  vocabfile << "]" << endl;
-  
+    
+  vocabfile << vocab_json.json() << endl;
   vocabfile.close();
 
   return 0;

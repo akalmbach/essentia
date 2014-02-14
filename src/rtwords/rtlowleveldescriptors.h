@@ -39,18 +39,18 @@ using namespace scheduler;
 class RTLowlevelDescriptors {
 
  public:
-	RTLowlevelDescriptors(Pool& p) {
+	RTLowlevelDescriptors() {
 		vocab = NULL;
-		pool = p;
 	}
 	
  	vector<string> namespaces; 
 
  	void createNetwork(SourceBase& source);
+      	Pool pool;
+
  	
  private:
 	Algorithm * vocab;
-	Pool pool;
 	void addOutput(SourceBase& feature, string nameSpace, string name);
  };
 

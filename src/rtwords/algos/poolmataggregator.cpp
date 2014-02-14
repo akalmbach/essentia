@@ -40,7 +40,12 @@ void PoolMatAggregator::compute() {
 	for (int i = 0; i < _fields.size(); i++) {
 		cols += getColsForField(input, _fields[i]);
 	}
-
+        if (rows < 1) {
+                throw EssentiaException("PoolMatAggregator got a field with no samples");
+        }
+        if (cols < 1) {
+                throw EssentiaException("PoolMatAggregator got a field with no entries");
+        }
 	Mat& output = _output.get();
 
 	output = Mat::zeros(rows, cols, CV_32FC1);
