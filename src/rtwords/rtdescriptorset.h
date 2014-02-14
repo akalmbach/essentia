@@ -37,8 +37,6 @@ using namespace essentia::streaming;
  class RTDescriptorSet{ 
 
  public:
- 	static const string nameSpace;  
-
  	void createNetwork(SourceBase& source, Pool& pool);
  };
 
