@@ -64,8 +64,8 @@ int main(int argc, char* argv[]) {
   SourceBase& source = audio->output("signal");
   connect(audio->output("time"), NOWHERE);
 
-  RTLowlevelDescriptors *lowlevel = new RTLowlevelDescriptors();
-  lowlevel->createNetwork(source, features);
+  RTLowlevelDescriptors *lowlevel = new RTLowlevelDescriptors(features);
+  lowlevel->createNetwork(source);
   
   Network network(audio, true);
   network.run();
@@ -76,13 +76,13 @@ int main(int argc, char* argv[]) {
   
   vocabfile << "[" << endl;
 
-  for (int i = 0; i < lowlevel->namespaces.size(); i++) {
+  for (unsigned int i = 0; i < lowlevel->namespaces.size(); i++) {
 	vocabfile << "  {\"" << lowlevel->namespaces[i] << "\":\n    [" << endl;
 	
     vector<vector<double> > vocab = computeVocab(features, features.descriptorNames(lowlevel->namespaces[i]), 500);
-    for (int j = 0; j < vocab.size(); j++) {
+    for (unsigned int j = 0; j < vocab.size(); j++) {
 	  vocabfile << "      [";
-	  for (int k = 0; k < vocab[j].size(); k++) {
+	  for (unsigned int k = 0; k < vocab[j].size(); k++) {
 	    vocabfile << vocab[j][k];
 	    if (k != vocab[j].size()-1) vocabfile << ",";
 	  }
