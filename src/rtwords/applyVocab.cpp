@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include <fstream>
+#include <ifstream>
 
 #include "essentia/scheduler/network.h"
 #include "essentia/streaming/sourcebase.h"
@@ -18,7 +18,24 @@ using namespace streaming;
 using namespace scheduler;
 
 int main(int argc, char* argv[]) {
-  // Load the vocab
+  // Load the whole vocab file into a string
+  ifstream vocabfile(argv[1], ios::in, ios::binary);
+  if (vocabfile) {
+    string vocabstring;
+    vocabfile.seekg(0, ios::end);
+    vocabstring.resize(vocabfile.tellg());
+    vocabfile.seekg(0, ios::beg);
+    vocabfile.read(&vocabstring[0], vocabstring.size());
+    vocabfile.close();
+  }
+  else {
+    cerr << "Could not load file " << argv[1] << endl;
+    return -1;
+  }
+  
+  Object o;
+  o.parse(vocabstring);
+    
   
   // Init the network
   essentia::init();

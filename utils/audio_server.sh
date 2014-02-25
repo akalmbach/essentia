@@ -3,7 +3,9 @@
 jackd -d alsa &
 sleep 1
 
-gst-launch -v souphttpsrc location=http://stream.ckut.ca:8000/903fm-128-stereo ! queue2 ! decodebin2 ! audioconvert ! audioresample ! jackaudiosink &
+#gst-launch -v souphttpsrc location=http://stream.ckut.ca:8000/903fm-128-stereo ! queue2 ! decodebin2 ! audioconvert ! audioresample ! jackaudiosink &
+
+gst-launch -v souphttpsrc location=http://audio4.radioreference.com/796464909 ! queue2 ! decodebin2 ! audioconvert ! audioresample ! jackaudiosink &
 
 sleep 1
 jack_disconnect gst-launch-0.10:out_jackaudiosink0_1 system:playback_1
