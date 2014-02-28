@@ -36,20 +36,24 @@ AlgorithmStatus CvShow::process() {
 
   AlgorithmStatus status = acquireData();
   
+  
   if (status != OK) {
     return status;
   }
-  
-  vector<Mat> frames = _frame.tokens();
+    
+  Mat frame = _frame.firstToken();
 
   if (_width >= 1 && _height >= 1) {
-    resize(frames[0], resized, resized.size(), 0, 0, INTER_LINEAR);
+    resize(frame, resized, resized.size(), 0, 0, INTER_LINEAR);
     imshow(_window_name, resized);
   }
   else {
-	imshow(_window_name, frames[0]);
+	imshow(_window_name, frame);
   }
+  
   waitKey(_wait);
+  
+  releaseData();
 
   return OK;
 }

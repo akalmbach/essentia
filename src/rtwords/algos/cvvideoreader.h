@@ -55,7 +55,7 @@ class CvVideoReader : public Algorithm {
 
  public:
   CvVideoReader() {
-    declareOutput(_frame, "frame", "the stream of Mat's coming from the video reader");
+    declareOutput(_frame, 1, 1, "frame", "the stream of Mat's coming from the video reader");
   }
 
   void declareParameters() {

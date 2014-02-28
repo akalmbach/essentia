@@ -41,6 +41,18 @@ vector<vector< double > > computeVocab(Pool pool, vector<string> fields, int k) 
 }
 
 int main(int argc, char* argv[]) {
+  bool computeMeans = false;
+  if (argc > 1 && string(argv[1]).compare("--computeMeans") == 0) {
+    if (argc < 4){
+      cout << "Not enough arguments" << endl;
+      return -1;
+    }
+    else {
+      computeMeans = true;
+    }
+  }
+
+  
   essentia::init();
 	
   AlgorithmFactory& factory = AlgorithmFactory::instance();
@@ -51,35 +63,41 @@ int main(int argc, char* argv[]) {
 
   RTLowlevelDescriptors *lowlevel = new RTLowlevelDescriptors();
   lowlevel->createNetwork(source);
+  Pool pool;
+  lowlevel->pool = pool;
   
   Network network(audio, true);
   network.run();
   
   
-  ofstream vocabfile;
-  ofstream testjsonfile;
-  vocabfile.open(argv[1]);
+  if (computeMeans) {
+    cout << "Computing " << atoi(argv[3]) << " Means..." << endl;
+    cout << "Writing to " << argv[2] << endl;
+    ofstream vocabfile;
+    vocabfile.open(argv[2]);
   
-  Object vocab_json;
-  for (unsigned int i = 0; i < lowlevel->namespaces.size(); i++) {
-    Object feature_json;
-    	
-    vector<vector<double> > vocab = computeVocab(lowlevel->pool, lowlevel->pool.descriptorNames(lowlevel->namespaces[i]), 5);
-    
-    for (unsigned int j = 0; j < vocab.size(); j++) {
-      Array sample_json;
-      for (unsigned int k = 0; k < vocab[j].size(); k++) {
-        sample_json << vocab[j][k];
+    Object vocab_json;
+    for (unsigned int i = 0; i < lowlevel->namespaces.size(); i++) {
+      Object feature_json;
+        
+      vector<vector<double> > vocab = computeVocab(lowlevel->pool,
+        lowlevel->pool.descriptorNames(lowlevel->namespaces[i]), atoi(argv[3]));
+      
+      for (unsigned int j = 0; j < vocab.size(); j++) {
+        Array sample_json;
+        for (unsigned int k = 0; k < vocab[j].size(); k++) {
+          sample_json << vocab[j][k];
+        }
+        stringstream convert;
+        convert << j;
+        feature_json << convert.str() << sample_json;
       }
-      stringstream convert;
-      convert << j;
-      feature_json << convert.str() << sample_json;
+      vocab_json << lowlevel->namespaces[i] << feature_json;
     }
-    vocab_json << lowlevel->namespaces[i] << feature_json;
+      
+    vocabfile << vocab_json.json() << endl;
+    vocabfile.close();
   }
-    
-  vocabfile << vocab_json.json() << endl;
-  vocabfile.close();
 
   return 0;
 }

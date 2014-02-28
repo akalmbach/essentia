@@ -31,17 +31,23 @@ const char* CvVideoReader::description = standard::CvVideoReader::description;
 
 void CvVideoReader::configure() {
   _filename = parameter("filename").toString();
+  cout << "Opening video file " << _filename << endl;
   _video_capture.open(_filename);
 }
 
 AlgorithmStatus CvVideoReader::process() {
   AlgorithmStatus status = acquireData();
+  
   if (status != OK) {
     return status;
   }
   
   // get a frame from the video reader
   // and put it in the Source.
+  Mat& output = _frame.firstToken();
+  _video_capture >> output;
+    
+  releaseData();
   
   return OK;
 }

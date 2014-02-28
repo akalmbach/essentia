@@ -2,9 +2,7 @@
 #define ESSENTIA_STREAMING_VISUALALGORITHM_H
 
 #include <opencv/cv.h>
-#include "streamingalgorithm.h"
-
-using namespace cv;
+#include "essentia/streaming/streamingalgorithm.h"
 
 namespace essentia {
 namespace streaming {
@@ -13,20 +11,20 @@ namespace streaming {
 class VisualAlgorithm : public Algorithm {
 
 protected:
-  Sink<Mat> _image_in_1;
-  Sink<Mat> _image_in_2;
+  Sink<cv::Mat> _image_in_1;
+  Sink<cv::Mat> _image_in_2;
   Sink<Real> _signal;
-  Source<Mat> _image_out;
+  Source<cv::Mat> _image_out;
    
  public:
   VisualAlgorithm(){
     declareInput(_image_in_1, 1, "Image In 1", "");
 	declareInput(_image_in_2, 1, "Image In 2", "");
-	declareInput(_signal, "Image In 1", "");
+	declareInput(_signal, "Signal", "");
 	declareOutput(_image_out, 1, "Image Out", "");
   };
   
-  Mat & (*proc)(const Mat& f1, const Mat& f2, const vector<Real>& signal);
+  cv::Mat (*proc)(const cv::Mat& f1, const cv::Mat& f2, const std::vector<Real>& signal);
 
 
   void declareParameters() { 

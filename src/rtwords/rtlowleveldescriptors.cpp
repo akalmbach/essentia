@@ -51,9 +51,9 @@ void RTLowlevelDescriptors::createNetwork(SourceBase& source){
 
   Algorithm* sr = factory.create("SilenceRate","thresholds", thresholds);
   connect(fc->output("frame"), sr->input("frame"));
-  addOutput(sr->output("threshold_0"), "silence_rate", "20dB");
-  addOutput(sr->output("threshold_1"), "silence_rate", "30dB");
-  addOutput(sr->output("threshold_2"), "silence_rate", "60dB");
+  addOutput(sr->output("threshold_0"), "silence_rate", "20dB", 1);
+  addOutput(sr->output("threshold_1"), "silence_rate", "30dB", 1);
+  addOutput(sr->output("threshold_2"), "silence_rate", "60dB", 1);
 
 
   // Windowing
@@ -71,13 +71,13 @@ void RTLowlevelDescriptors::createNetwork(SourceBase& source){
   // Temporal Descriptors
   Algorithm* zcr = factory.create("ZeroCrossingRate");
   connect(fc->output("frame"), zcr->input("signal"));
-  addOutput(zcr->output("zeroCrossingRate"), "zcr", "zeroCrossingRate");
+  addOutput(zcr->output("zeroCrossingRate"), "zcr", "zeroCrossingRate", 1);
 
   // MFCC
   Algorithm* mfcc = factory.create("MFCC");
   connect(spec->output("spectrum"), mfcc->input("spectrum"));
   connect(mfcc->output("bands"), NOWHERE);
-  addOutput(mfcc->output("mfcc"), "mfcc", "mfcc");
+  addOutput(mfcc->output("mfcc"), "mfcc", "mfcc", 13);
 
   // Spectral Decrease
   Algorithm* square = factory.create("UnaryOperator", "type", "square");
@@ -85,75 +85,75 @@ void RTLowlevelDescriptors::createNetwork(SourceBase& source){
                                        "range", analysisSampleRate * 0.5);
   connect(spec->output("spectrum"), square->input("array"));
   connect(square->output("array"), decrease->input("array"));
-  addOutput(decrease->output("decrease"), "spectral", "decrease");
+  addOutput(decrease->output("decrease"), "spectral", "decrease", 1);
   
   // Spectral Energy
   Algorithm* energy = factory.create("Energy");
   connect(spec->output("spectrum"), energy->input("array"));
-  addOutput(energy->output("energy"), "spectral", "energy");
+  addOutput(energy->output("energy"), "spectral", "energy", 1);
 
   // Spectral Energy Band Ratio
   Algorithm* ebr_low = factory.create("EnergyBand",
                                       "startCutoffFrequency", 20.0,
                                       "stopCutoffFrequency", 150.0);
   connect(spec->output("spectrum"), ebr_low->input("spectrum"));
-  addOutput(ebr_low->output("energyBand"), "spectral", "energyband_low");
+  addOutput(ebr_low->output("energyBand"), "spectral", "energyband_low", 1);
 
   Algorithm* ebr_mid_low = factory.create("EnergyBand",
                                           "startCutoffFrequency", 150.0,
                                           "stopCutoffFrequency", 800.0);
   connect(spec->output("spectrum"), ebr_mid_low->input("spectrum"));
-  addOutput(ebr_mid_low->output("energyBand"), "spectral", "energyband_middle_low");
+  addOutput(ebr_mid_low->output("energyBand"), "spectral", "energyband_middle_low", 1);
 
   Algorithm* ebr_mid_hi = factory.create("EnergyBand",
                                          "startCutoffFrequency", 800.0,
                                          "stopCutoffFrequency", 4000.0);
   connect(spec->output("spectrum"), ebr_mid_hi->input("spectrum"));
-  addOutput(ebr_mid_hi->output("energyBand"), "spectral", "energyband_middle_high");
+  addOutput(ebr_mid_hi->output("energyBand"), "spectral", "energyband_middle_high", 1);
 
 
   Algorithm* ebr_hi = factory.create("EnergyBand",
                                      "startCutoffFrequency", 4000.0,
                                      "stopCutoffFrequency", 20000.0);
   connect(spec->output("spectrum"), ebr_hi->input("spectrum"));
-  addOutput(ebr_hi->output("energyBand"), "spectral", "spectral.energyband_high");
+  addOutput(ebr_hi->output("energyBand"), "spectral", "spectral.energyband_high", 1);
  
 
 
   // Spectral HFC
   Algorithm* hfc = factory.create("HFC");
   connect(spec->output("spectrum"), hfc->input("spectrum"));
-  addOutput(hfc->output("hfc"), "hfc", "hfc");
+  addOutput(hfc->output("hfc"), "hfc", "hfc", 1);
 
 
   // Spectral Frequency Bands
   Algorithm* fb = factory.create("FrequencyBands",
                                  "sampleRate", analysisSampleRate);
   connect(spec->output("spectrum"), fb->input("spectrum"));
-  addOutput(fb->output("bands"), "fb", "bands");
+  addOutput(fb->output("bands"), "fb", "bands", ??);
 
   // Spectral RMS
   Algorithm* rms = factory.create("RMS");
   connect(spec->output("spectrum"), rms->input("array"));
-  addOutput(rms->output("rms"),"spectral", "rms");
+  addOutput(rms->output("rms"),"spectral", "rms", 1);
 
 
   // Spectral Flux
   Algorithm* flux = factory.create("Flux");
   connect(spec->output("spectrum"), flux->input("spectrum"));
-  addOutput(flux->output("flux"), "spectral", "flux");
+  addOutput(flux->output("flux"), "spectral", "flux", 1);
 
 
   // Spectral Roll Off
   Algorithm* ro = factory.create("RollOff");
   connect(spec->output("spectrum"), ro->input("spectrum"));
-  addOutput(ro->output("rollOff"), "spectral", "rolloff");
+  addOutput(ro->output("rollOff"), "spectral", "rolloff", 1);
 
 
   // Spectral Strong Peak
   Algorithm* sp = factory.create("StrongPeak");
   connect(spec->output("spectrum"), sp->input("spectrum"));
-  addOutput(sp->output("strongPeak"), "spectral", "strongpeak");
+  addOutput(sp->output("strongPeak"), "spectral", "strongpeak", 1);
 
 
   // BarkBands

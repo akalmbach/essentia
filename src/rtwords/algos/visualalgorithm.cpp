@@ -20,17 +20,21 @@ void VisualAlgorithm::configure() {
 
 AlgorithmStatus VisualAlgorithm::process() {
   AlgorithmStatus status = acquireData();
+  
   if (status == OK) {
-	const vector<Mat>& f1 = _image_in_1.tokens();
-	const vector<Mat>& f2 = _image_in_2.tokens();
+	cout << "VA got data" << endl;
+	const Mat& f1 = _image_in_1.firstToken();
+	const Mat& f2 = _image_in_2.firstToken();
 	const vector<Real>& features = _signal.tokens();
 	
-	vector<Mat>& output = _image_out.tokens();
+	Mat& output = _image_out.firstToken(); 
+	output = proc(f1, f2, features);
 	
-	output.push_back(proc(f1[0], f2[0], features));
+	releaseData();
 	
 	return OK;
   }
+  
   else {
 	return status;
   }

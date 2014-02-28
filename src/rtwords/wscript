@@ -33,3 +33,12 @@ def build(ctx):
       use = 'essentia jsonxx ' + ctx.env.USES,
       install_path = None
     )
+    
+    files = ['cvvideoreadertest.cpp']
+    ctx.program(
+      source = ctx.path.ant_glob(' '.join(files)),
+      target = 'test',
+      includes = ['.', '..'],
+      use = 'essentia ' + ctx.env.USES,
+      install_path = None
+    )

@@ -78,16 +78,16 @@ class CvShow : public Algorithm {
 
   void declareParameters() {
     declareParameter("window_name", "the name of the window", "", "window");
-    declareParameter("rate", "update rate for showing frames", "0-50", 20.0);
-    declareParameter("width", "pixel width of the output. -1 uses the width of the input image", "-1-1920", -1);
-    declareParameter("height", "pixel height of the output. -1 uses the height of the input image", "-1-1080", -1);
+    declareParameter("rate", "update rate for showing frames", "[0,100]", 20.0);
+    declareParameter("width", "pixel width of the output. -1 uses the width of the input image", "[-1,1920]", -1);
+    declareParameter("height", "pixel height of the output. -1 uses the height of the input image", "[-1-,1080]", -1);
   }
 
   ~CvShow() {}
 
   void configure() {
     _window_name = parameter("window_name").toString();
-    _wait = 1.0/parameter("rate").toReal();
+    _wait = 1000.0/parameter("rate").toReal();
     _width = parameter("width").toInt();
     _height = parameter("height").toInt();
     if (_width >= 1 && _height >= 1) {

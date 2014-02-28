@@ -158,7 +158,7 @@ void JackRingBuffer::configure() {
 void JackRingBuffer::add(Real* inputData, int size) {
     //std::cerr << "adding " << size << " to ringbuffer with space " << _impl->_space << std::endl;
     int added = _impl->add(inputData, size);
-    if (added < size) throw EssentiaException("Not enough space in ringbuffer at input");
+    //if (added < size) throw EssentiaException("Not enough space in ringbuffer at input");
 }
 
 
