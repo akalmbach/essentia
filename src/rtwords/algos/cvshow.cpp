@@ -36,11 +36,11 @@ AlgorithmStatus CvShow::process() {
 
   AlgorithmStatus status = acquireData();
   
-  
   if (status != OK) {
     return status;
   }
-    
+  
+  cout << "CvShow OK" << endl;
   Mat frame = _frame.firstToken();
 
   if (_width >= 1 && _height >= 1) {
@@ -51,6 +51,7 @@ AlgorithmStatus CvShow::process() {
 	imshow(_window_name, frame);
   }
   
+  cout << _wait << endl;
   waitKey(_wait);
   
   releaseData();

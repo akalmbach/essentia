@@ -51,6 +51,12 @@ int main(int argc, char* argv[]) {
       computeMeans = true;
     }
   }
+  
+  cout << "computeMeans " << computeMeans << endl;
+  cout << "Outfile " << argv[2] << endl;
+  cout << "K " << argv[3];
+  cv::namedWindow("foo");
+  cv::waitKey(0);
 
   
   essentia::init();
@@ -62,9 +68,9 @@ int main(int argc, char* argv[]) {
   connect(audio->output("time"), NOWHERE);
 
   RTLowlevelDescriptors *lowlevel = new RTLowlevelDescriptors();
-  lowlevel->createNetwork(source);
   Pool pool;
   lowlevel->pool = pool;
+  lowlevel->createNetwork(source);
   
   Network network(audio, true);
   network.run();

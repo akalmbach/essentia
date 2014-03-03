@@ -22,6 +22,7 @@ namespace essentia{
   
   int LabelPool::addVocabNamespace(string ns) {
     vector<vector<Real> > V;
+    cout << "LabelPool::addVocabNamespace" << endl;
     if (!_json_object.has<jsonxx::Object>(ns)) {
       cerr << "VOCAB DID NOT CONTAIN NS: " << ns << endl;
       return -1;
@@ -50,7 +51,8 @@ namespace essentia{
   }
   
   void LabelPool::add(const string& name) {
-     // get the namespace out of the name
+	cout << "LabelPool::add(" << name << ")" << endl;
+    // get the namespace out of the name
     int dotidx = name.find(".");
     string ns = name.substr(0, dotidx);
     
@@ -103,11 +105,13 @@ namespace essentia{
   }
   
   void LabelPool::add(const std::string& name, const Real& value, bool validityCheck) {
+    cout << "LabelPool::addReal" << endl;
     Pool::add(name, value);
     LabelPool::add(name);
   }
   
   void LabelPool::add(const std::string& name, const std::vector<Real>& value, bool validityCheck) {
+    cout << "LabelPool::addVectorReal" << endl;
     Pool::add(name, value);
     LabelPool::add(name);
   }

@@ -160,6 +160,10 @@ class PoolStorage : public PoolStorageBase {
  * Connect a source (eg: the output of an algorithm) to a Pool, and use the given
  * name as an identifier in the Pool.
  */
+void connect(SourceBase& source, Pool* pool,
+             const std::string& descriptorName,
+             std::ostream *outfile); 
+ 
 void connect(SourceBase& source, Pool& pool,
              const std::string& descriptorName,
              std::ostream *outfile);

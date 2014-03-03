@@ -5,7 +5,6 @@ using namespace essentia;
 using namespace essentia::streaming;
 
 void RTLowlevelDescriptors::addOutput(SourceBase& feature, string nameSpace, string name) {
-	
 	bool newnamespace = true;
 	for (unsigned int i = 0; i < namespaces.size(); i++) {
 		if (nameSpace.compare((namespaces[i])) == 0) {

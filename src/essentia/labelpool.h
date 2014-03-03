@@ -15,8 +15,8 @@ namespace essentia {
     public:
       void setVocab(string filename);
       
-      void add(const std::string& name, const Real& value, bool validityCheck = false);
-      void add(const std::string& name, const std::vector<Real>& value, bool validityCheck = false);
+      virtual void add(const std::string& name, const Real& value, bool validityCheck = false);
+      virtual void add(const std::string& name, const std::vector<Real>& value, bool validityCheck = false);
       
     private:
       void add(const std::string& name);

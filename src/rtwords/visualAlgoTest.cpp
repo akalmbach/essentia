@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
   AlgorithmFactory& factory = AlgorithmFactory::instance();
   
   
-  Algorithm* audio = factory.create("JackRingBuffer", "client_name", "essentia", "bufferSize", 16384);
+  Algorithm* audio = factory.create("JackRingBuffer", "client_name", "essentia", "bufferSize", 16384*8);
   Algorithm* visual = factory.create("VisualAlgorithm", 
   
   return 0;

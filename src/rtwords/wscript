@@ -37,7 +37,7 @@ def build(ctx):
     files = ['applyVocab.cpp', 'rtlowleveldescriptors.cpp']
     ctx.program(
       source = ctx.path.ant_glob(' '.join(files)),
-      target = 'genVocab',
+      target = 'applyVocab',
       includes = ['.', '..'],
       use = 'essentia jsonxx ' + ctx.env.USES,
       install_path = None

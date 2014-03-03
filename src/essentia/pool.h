@@ -146,22 +146,22 @@ class Pool {
    *         function can no longer be called with "foo" as its @e name
    *         parameter, because "bar" is a child descriptor name of "foo".
    */
-  void add(const std::string& name, const Real& value, bool validityCheck = false);
+  virtual void add(const std::string& name, const Real& value, bool validityCheck = false);
 
   /** @copydoc add(const std::string&,const Real&,bool) */
-  void add(const std::string& name, const std::vector<Real>& value, bool validityCheck = false);
+  virtual void add(const std::string& name, const std::vector<Real>& value, bool validityCheck = false);
 
   /** @copydoc add(const std::string&,const Real&,bool) */
-  void add(const std::string& name, const std::string& value, bool validityCheck = false);
+  virtual void add(const std::string& name, const std::string& value, bool validityCheck = false);
 
   /** @copydoc add(const std::string&,const Real&,bool) */
-  void add(const std::string& name, const std::vector<std::string>& value, bool validityCheck = false);
+  virtual void add(const std::string& name, const std::vector<std::string>& value, bool validityCheck = false);
 
   /** @copydoc add(const std::string&,const Real&,bool) */
-  void add(const std::string& name, const TNT::Array2D<Real>& value, bool validityCheck = false);
+  virtual void add(const std::string& name, const TNT::Array2D<Real>& value, bool validityCheck = false);
 
   /** @copydoc add(const std::string&,const Real&,bool) */
-  void add(const std::string& name, const StereoSample& value, bool validityCheck = false);
+  virtual void add(const std::string& name, const StereoSample& value, bool validityCheck = false);
 
   /**
    * WARNING: this is an utility method that might fail in weird ways if not used

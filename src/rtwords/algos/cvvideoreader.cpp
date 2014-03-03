@@ -41,10 +41,16 @@ AlgorithmStatus CvVideoReader::process() {
   if (status != OK) {
     return status;
   }
-  
+  cout << "VideoReader OK" << endl;
   // get a frame from the video reader
   // and put it in the Source.
   Mat& output = _frame.firstToken();
+  const Real& cur_time = _time.firstToken();
+  if (_start_time < 0) {
+	  _start_time = cur_time;
+  }
+  cout << "Video Time: " << (cur_time-_start_time)*1000.0 << endl;
+  _video_capture.set(CV_CAP_PROP_POS_MSEC, (cur_time-_start_time)*1000.0);
   _video_capture >> output;
     
   releaseData();

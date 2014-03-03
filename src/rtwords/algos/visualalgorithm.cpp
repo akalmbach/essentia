@@ -1,3 +1,5 @@
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 #include "visualalgorithm.h"
 #include "sourcebase.h"
 
@@ -14,21 +16,19 @@ const char* VisualAlgorithm::description = DOC(
 "This algorithm can be used to generate images based on audio features"
 );
 
-void VisualAlgorithm::configure() {
-	
-}
+void VisualAlgorithm::configure() {}
 
 AlgorithmStatus VisualAlgorithm::process() {
   AlgorithmStatus status = acquireData();
   
   if (status == OK) {
-	cout << "VA got data" << endl;
+	cout << "VisualAlgorithm OK" << endl;
 	const Mat& f1 = _image_in_1.firstToken();
 	const Mat& f2 = _image_in_2.firstToken();
 	const vector<Real>& features = _signal.tokens();
-	
 	Mat& output = _image_out.firstToken(); 
-	output = proc(f1, f2, features);
+	//output = proc(f1, f2, features);
+	output = f1;
 	
 	releaseData();
 	

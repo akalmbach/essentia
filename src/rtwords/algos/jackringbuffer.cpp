@@ -190,7 +190,8 @@ AlgorithmStatus JackRingBuffer::process() {
 
   _output.setReleaseSize(size);
   //jack_get_time() is in usecs, we want mins
-  _jackTime.push((Real) (jack_get_time()/60000000.0));  
+  Real& time = _jackTime.firstToken(); 
+  time = (Real) (jack_get_time()/10000000.0); 
     
   releaseData();
   

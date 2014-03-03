@@ -14,12 +14,14 @@ namespace standard {
 class CvVideoReader : public Algorithm {
  
  protected:
+  Input<Real> _time;
   Output<Mat> _frame;
   string _filename;
   VideoCapture _video_capture;
   
  public:
   CvVideoReader() {
+	declareInput(_time, "time", "the time, in seconds of the video that should be displayed");
     declareOutput(_frame, "frame", "the stream of Mat's coming from the video reader");
   }
 
@@ -50,12 +52,16 @@ class CvVideoReader : public Algorithm {
 
  protected:
   Source<Mat> _frame;
+  Sink<Real> _time;
   string _filename;
   VideoCapture _video_capture;
+  Real _start_time;
 
  public:
   CvVideoReader() {
+	declareInput(_time, 1, 1, "time", "the time, in seconds of the video that should be displayed");
     declareOutput(_frame, 1, 1, "frame", "the stream of Mat's coming from the video reader");
+    _start_time = -1;
   }
 
   void declareParameters() {

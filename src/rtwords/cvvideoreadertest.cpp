@@ -35,20 +35,19 @@ int main(int argc, char *argv[]) {
   Algorithm* audio = factory.create("JackRingBuffer", "client_name", "essentia", "bufferSize", 16384);
   Algorithm* fc = factory.create("FrameCutter", "frameSize", 2048, "hopSize", 1024, "silentFrames", "noise");
   Algorithm* dy = factory.create("Loudness");
+  Algorithm* reader = factory.create("CvVideoReader", "filename", argv[1]);
+  Algorithm* imshow = factory.create("CvShow", "window_name", "test", "rate", 40);
+  VisualAlgorithm* visual = (VisualAlgorithm *) factory.create("VisualAlgorithm");
 
   Pool pool;
   
-  connect(audio->output("time"), NOWHERE);
   connect(audio->output("signal"), fc->input("signal"));
   connect(fc->output("frame"), dy->input("signal"));
   connect(dy->output("loudness"), pool, "loudness.loudness", &cout);
   
-  Algorithm* reader = factory.create("CvVideoReader", "filename", argv[1]);
-  Algorithm* imshow = factory.create("CvShow", "rate", 40);
-
-  VisualAlgorithm* visual = (VisualAlgorithm *) factory.create("VisualAlgorithm");
   visual->proc = (* test);
   
+  connect(audio->output("time"), reader->input("time"));
   connect(reader->output("frame"), visual->input("Image In 1"));
   connect(reader->output("frame"), visual->input("Image In 2"));
   connect(dy->output("loudness"), visual->input("Signal"));
@@ -56,8 +55,6 @@ int main(int argc, char *argv[]) {
      
   Network network(audio, true);
   network.run();
-  Network videoNetwork(reader, false);
-  videoNetwork.run();
   
   return 0;
 }

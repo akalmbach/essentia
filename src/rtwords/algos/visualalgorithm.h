@@ -20,7 +20,7 @@ protected:
   VisualAlgorithm(){
     declareInput(_image_in_1, 1, "Image In 1", "");
 	declareInput(_image_in_2, 1, "Image In 2", "");
-	declareInput(_signal, "Signal", "");
+	declareInput(_signal, 10, "Signal", "");
 	declareOutput(_image_out, 1, "Image Out", "");
   };
   
