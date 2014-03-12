@@ -126,6 +126,7 @@ int main(int argc, char* argv[]) {
 
   }
 
+
   // aggregate the results
   Pool aggrPool; // the pool with the aggregated MFCC values
   const char* stats[] = { "mean", "var", "min", "max" };
