@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
   
   connect(audio->output("signal"), fc->input("signal"));
   connect(fc->output("frame"), dy->input("signal"));
-  connect(dy->output("loudness"), pool, "loudness.loudness", &cout);
+  connect(dy->output("loudness"), pool, "loudness.loudness");
   
   visual->proc = (* test);
   

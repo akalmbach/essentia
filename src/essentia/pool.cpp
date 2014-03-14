@@ -539,3 +539,4 @@ bool Pool::isSingleValue(const string& name) {
 }
 
 } // namespace essentia
+

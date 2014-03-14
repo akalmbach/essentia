@@ -20,30 +20,30 @@
 #include "poolstorage.h"
 using namespace std;
 
-#define CREATE_POOL_STORAGE(type, outfile)\
+#define CREATE_POOL_STORAGE(type)\
   if (sameType(sourceType, typeid(type))) {\
-     ps = new PoolStorage<type>(&pool, descriptorName, setSingle, outfile);\
+     ps = new PoolStorage<type>(&pool, descriptorName, setSingle);\
   }
 
 namespace essentia {
 namespace streaming {
 
-void connect(SourceBase& source, Pool& pool, const string& descriptorName, bool setSingle, ostream *outfile) {
+void connect(SourceBase& source, Pool& pool, const string& descriptorName, bool setSingle) {
 
   const type_info& sourceType = source.typeInfo();
 
   Algorithm* ps = 0;
   //if (sameType(sourceType, typeid(Real))) ps = new PoolStorage<Real>(&pool, name);
 
-  CREATE_POOL_STORAGE(Real, outfile);
-  CREATE_POOL_STORAGE(string, outfile);
-  CREATE_POOL_STORAGE(vector<string>, outfile);
-  CREATE_POOL_STORAGE(TNT::Array2D<Real>, outfile);
-  CREATE_POOL_STORAGE(StereoSample, outfile);
-  CREATE_POOL_STORAGE(vector<Real>, outfile);
+  CREATE_POOL_STORAGE(Real);
+  CREATE_POOL_STORAGE(string);
+  CREATE_POOL_STORAGE(vector<string>);
+  CREATE_POOL_STORAGE(TNT::Array2D<Real>);
+  CREATE_POOL_STORAGE(StereoSample);
+  CREATE_POOL_STORAGE(vector<Real>);
 
   // convert int to Real
-  if (sameType(sourceType, typeid(int))) ps = new PoolStorage<int, Real>(&pool, descriptorName, setSingle, outfile);
+  if (sameType(sourceType, typeid(int))) ps = new PoolStorage<int, Real>(&pool, descriptorName, setSingle);
 
   if (!ps) throw EssentiaException("Pool Storage doesn't work for type: ", nameOfType(sourceType));
 
@@ -60,17 +60,14 @@ void connect(SourceBase& source, Pool& pool, const string& descriptorName, bool 
 }
 
 void connect(SourceBase& source, Pool& pool, const string& descriptorName) {
-	connect(source, pool, descriptorName, NULL);
-}
-
-void connect(SourceBase& source, Pool& pool, const string& descriptorName, ostream* outfile) {
   bool setSingle = false;
   if (source.releaseSize() == 0) setSingle = true;
-  connect(source, pool, descriptorName, setSingle, outfile);
+
+  connect(source, pool, descriptorName, setSingle);
 }
 
 void connectSingleValue(SourceBase& source, Pool& pool, const string& descriptorName) {
-  connect(source, pool, descriptorName, &cout);
+  connect(source, pool, descriptorName, true);
 }
 
 
@@ -128,6 +125,7 @@ void disconnect(SourceBase& source, Pool& pool, const string& descriptorName) {
   msg << ") is not connected to a Pool";
   throw EssentiaException(msg);
 }
+
 
 } // namespace streaming
 } // namespace essentia

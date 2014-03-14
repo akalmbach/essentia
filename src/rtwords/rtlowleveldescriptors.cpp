@@ -14,7 +14,7 @@ void RTLowlevelDescriptors::addOutput(SourceBase& feature, string nameSpace, str
 	}
 	if (newnamespace) namespaces.push_back(nameSpace);
 
-	connect(feature, pool, nameSpace+"."+name, &cout);
+	connect(feature, pool, nameSpace+"."+name);
 }
 
 void RTLowlevelDescriptors::createNetwork(SourceBase& source){

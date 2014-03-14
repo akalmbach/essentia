@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 
   // Audio -> FrameCutter
   audio->output("signal")    >>  fc->input("signal");
-  audio->output("time") >>  PC(pool, "clock", &cout);                        
+  audio->output("time") >>  PC(pool, "clock");                        
 
   // FrameCutter -> Windowing -> Spectrum
   fc->output("frame")       >>  w->input("frame");
@@ -76,12 +76,12 @@ int main(int argc, char* argv[]) {
   spec->output("spectrum")  >>  gfcc->input("spectrum");
 
   mfcc->output("bands")     >>  NOWHERE;                          // we don't want the mel bands
-  mfcc->output("mfcc")      >>  PC(pool, "lowlevel.mfcc", &cout); // store only the mfcc coeffs and spit them 
+  mfcc->output("mfcc")      >>  PC(pool, "lowlevel.mfcc"); // store only the mfcc coeffs and spit them 
   
   gfcc->output("bands")     >>  NOWHERE;                          // we don't want the mel bands
   gfcc->output("gfcc")      >>  PC(pool, "lowlevel.gfcc"); // store only the mfcc coeffs and spit them out
   
-  lpc->output("lpc")        >>  PC(pool, "lowlevel.lpc", &cout);
+  lpc->output("lpc")        >>  PC(pool, "lowlevel.lpc");
   lpc->output("reflection") >>  PC(pool, "lowlevel.reflections");
 
 

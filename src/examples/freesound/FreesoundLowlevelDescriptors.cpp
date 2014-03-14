@@ -57,9 +57,9 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
 
   Algorithm* sr = factory.create("SilenceRate","thresholds", thresholds);
   connect(fc->output("frame"), sr->input("frame"));
-  connect(sr->output("threshold_0"), pool, "silence_rate.20dB", &cout);
-  connect(sr->output("threshold_1"), pool, "silence_rate.30dB", &cout);
-  connect(sr->output("threshold_2"), pool, "silence_rate.60dB", &cout);
+  connect(sr->output("threshold_0"), pool, "silence_rate.20dB");
+  connect(sr->output("threshold_1"), pool, "silence_rate.30dB");
+  connect(sr->output("threshold_2"), pool, "silence_rate.60dB");
   namespaces.push_back("silence_rate");
 
 
@@ -78,14 +78,14 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
   // Temporal Descriptors
   Algorithm* zcr = factory.create("ZeroCrossingRate");
   connect(zcr->input("signal"), fc->output("frame"));
-  connect(zcr->output("zeroCrossingRate"), pool, "zcr.zerocrossingrate", &cout);
+  connect(zcr->output("zeroCrossingRate"), pool, "zcr.zerocrossingrate");
   namespaces.push_back("zcr");
 
   // MFCC
   Algorithm* mfcc = factory.create("MFCC");
   connect(spec->output("spectrum"), mfcc->input("spectrum"));
   connect(mfcc->output("bands"), NOWHERE);
-  connect(mfcc->output("mfcc"), pool, "mfcc.mfcc", &cout);
+  connect(mfcc->output("mfcc"), pool, "mfcc.mfcc");
   namespaces.push_back("mfcc");
 
   // Spectral Decrease
@@ -94,13 +94,13 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
                                        "range", analysisSampleRate * 0.5);
   connect(spec->output("spectrum"), square->input("array"));
   connect(square->output("array"), decrease->input("array"));
-  connect(decrease->output("decrease"), pool, "spectral.decrease", &cout);
+  connect(decrease->output("decrease"), pool, "spectral.decrease");
   namespaces.push_back("spectral");
   
   // Spectral Energy
   Algorithm* energy = factory.create("Energy");
   connect(spec->output("spectrum"), energy->input("array"));
-  connect(energy->output("energy"), pool, "spectral.energy", &cout);
+  connect(energy->output("energy"), pool, "spectral.energy");
 
   // Spectral Energy Band Ratio
 
@@ -108,33 +108,33 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
                                       "startCutoffFrequency", 20.0,
                                       "stopCutoffFrequency", 150.0);
   connect(spec->output("spectrum"), ebr_low->input("spectrum"));
-  connect(ebr_low->output("energyBand"), pool, "spectral.energyband_low",&cout);
+  connect(ebr_low->output("energyBand"), pool, "spectral.energyband_low");
 
   Algorithm* ebr_mid_low = factory.create("EnergyBand",
                                           "startCutoffFrequency", 150.0,
                                           "stopCutoffFrequency", 800.0);
   connect(spec->output("spectrum"), ebr_mid_low->input("spectrum"));
-  connect(ebr_mid_low->output("energyBand"), pool, "spectral.energyband_middle_low",&cout);
+  connect(ebr_mid_low->output("energyBand"), pool, "spectral.energyband_middle_low");
 
   Algorithm* ebr_mid_hi = factory.create("EnergyBand",
                                          "startCutoffFrequency", 800.0,
                                          "stopCutoffFrequency", 4000.0);
   connect(spec->output("spectrum"), ebr_mid_hi->input("spectrum"));
-  connect(ebr_mid_hi->output("energyBand"), pool, "spectral.energyband_middle_high",&cout);
+  connect(ebr_mid_hi->output("energyBand"), pool, "spectral.energyband_middle_high");
 
 
   Algorithm* ebr_hi = factory.create("EnergyBand",
                                      "startCutoffFrequency", 4000.0,
                                      "stopCutoffFrequency", 20000.0);
   connect(spec->output("spectrum"), ebr_hi->input("spectrum"));
-  connect(ebr_hi->output("energyBand"), pool, "spectral.energyband_high",&cout);
+  connect(ebr_hi->output("energyBand"), pool, "spectral.energyband_high");
  
 
 
   // Spectral HFC
   Algorithm* hfc = factory.create("HFC");
   connect(spec->output("spectrum"), hfc->input("spectrum"));
-  connect(hfc->output("hfc"), pool, "hfc.hfc", &cout);
+  connect(hfc->output("hfc"), pool, "hfc.hfc");
   namespaces.push_back("hfc");
 
 
@@ -142,32 +142,32 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
   Algorithm* fb = factory.create("FrequencyBands",
                                  "sampleRate", analysisSampleRate);
   connect(spec->output("spectrum"), fb->input("spectrum"));
-  connect(fb->output("bands"), pool, "fb.frequency_bands",&cout);
+  connect(fb->output("bands"), pool, "fb.frequency_bands");
   namespaces.push_back("fb");
 
 
   // Spectral RMS
   Algorithm* rms = factory.create("RMS");
   connect(spec->output("spectrum"), rms->input("array"));
-  connect(rms->output("rms"), pool, "spectral.rms",&cout);
+  connect(rms->output("rms"), pool, "spectral.rms");
 
 
   // Spectral Flux
   Algorithm* flux = factory.create("Flux");
   connect(spec->output("spectrum"), flux->input("spectrum"));
-  connect(flux->output("flux"), pool, "spectral.flux",&cout);
+  connect(flux->output("flux"), pool, "spectral.flux");
 
 
   // Spectral Roll Off
   Algorithm* ro = factory.create("RollOff");
   connect(spec->output("spectrum"), ro->input("spectrum"));
-  connect(ro->output("rollOff"), pool, "spectral.rolloff",&cout);
+  connect(ro->output("rollOff"), pool, "spectral.rolloff");
 
 
   // Spectral Strong Peak
   Algorithm* sp = factory.create("StrongPeak");
   connect(spec->output("spectrum"), sp->input("spectrum"));
-  connect(sp->output("strongPeak"), pool, "spectral.strongpeak",&cout);
+  connect(sp->output("strongPeak"), pool, "spectral.strongpeak");
 
 
   // BarkBands
@@ -175,20 +175,20 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
   Algorithm* barkBands = factory.create("BarkBands",
                                         "numberBands", nBarkBands);
   connect(spec->output("spectrum"), barkBands->input("spectrum"));
-  connect(barkBands->output("bands"), pool, "bb.barkbands", &cout);
+  connect(barkBands->output("bands"), pool, "bb.barkbands");
   namespaces.push_back("bb");
 
 
   // Spectral Crest
   Algorithm* crest = factory.create("Crest");
   connect(barkBands->output("bands"), crest->input("array"));
-  connect(crest->output("crest"), pool, "spectral.crest",&cout);
+  connect(crest->output("crest"), pool, "spectral.crest");
 
 
   // Spectral Flatness DB
   Algorithm* flatness = factory.create("FlatnessDB");
   connect(barkBands->output("bands"), flatness->input("array"));
-  connect(flatness->output("flatnessDB"), pool, "spectral.flatness_db",&cout);
+  connect(flatness->output("flatnessDB"), pool, "spectral.flatness_db");
 
 
   // Spectral Centroid
@@ -197,7 +197,7 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
                                        "range", analysisSampleRate * 0.5);
   connect(spec->output("spectrum"), square2->input("array"));
   connect(square2->output("array"), centroid->input("array"));
-  connect(centroid->output("centroid"), pool, "spectral.centroid",&cout);
+  connect(centroid->output("centroid"), pool, "spectral.centroid");
 
 
   // Spectral Central Moments Statistics
@@ -206,9 +206,9 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
   Algorithm* ds = factory.create("DistributionShape");
   connect(spec->output("spectrum"), cm->input("array"));
   connect(cm->output("centralMoments"), ds->input("centralMoments"));
-  connect(ds->output("kurtosis"), pool, "spectral.kurtosis",&cout);
-  connect(ds->output("spread"), pool, "spectral.spread",&cout);
-  connect(ds->output("skewness"), pool, "spectral.skewness",&cout);
+  connect(ds->output("kurtosis"), pool, "spectral.kurtosis");
+  connect(ds->output("spread"), pool, "spectral.spread");
+  connect(ds->output("skewness"), pool, "spectral.skewness");
 
 
   // Spectral Dissonance
@@ -218,7 +218,7 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
   connect(spec->output("spectrum"), peaks->input("spectrum"));
   connect(peaks->output("frequencies"), diss->input("frequencies"));
   connect(peaks->output("magnitudes"), diss->input("magnitudes"));
-  connect(diss->output("dissonance"), pool, "spectral.dissonance",&cout);
+  connect(diss->output("dissonance"), pool, "spectral.dissonance");
 
   // Spectral Contrast
   Algorithm* sc = factory.create("SpectralContrast",
@@ -231,8 +231,8 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
                                  "staticDistribution", 0.15);
 
   connect(spec->output("spectrum"), sc->input("spectrum"));
-  connect(sc->output("spectralContrast"), pool, "spectral.contrast",&cout);
-  connect(sc->output("spectralValley"), pool, "spectral.scvalleys",&cout);
+  connect(sc->output("spectralContrast"), pool, "spectral.contrast");
+  connect(sc->output("spectralValley"), pool, "spectral.scvalleys");
 
 
   // Spectral BarkBands Central Moments Statistics
@@ -241,37 +241,37 @@ void FreesoundLowlevelDescriptors::createNetwork(SourceBase& source, Pool& pool)
   Algorithm* ds2 = factory.create("DistributionShape");
   connect(barkBands->output("bands"), bbcm->input("array"));
   connect(bbcm->output("centralMoments"), ds2->input("centralMoments"));
-  connect(ds2->output("kurtosis"), pool, "bb.barkbands_kurtosis",&cout);
-  connect(ds2->output("spread"), pool, "bb.barkbands_spread",&cout);
-  connect(ds2->output("skewness"), pool, "bb.barkbands_skewness",&cout);
+  connect(ds2->output("kurtosis"), pool, "bb.barkbands_kurtosis");
+  connect(ds2->output("spread"), pool, "bb.barkbands_spread");
+  connect(ds2->output("skewness"), pool, "bb.barkbands_skewness");
 
 
   // Spectral Complexity
   Algorithm* tc = factory.create("SpectralComplexity",
                                  "magnitudeThreshold", 0.005);
   connect(spec->output("spectrum"), tc->input("spectrum"));
-  connect(tc->output("spectralComplexity"), pool, "spectral.complexity",&cout);
+  connect(tc->output("spectralComplexity"), pool, "spectral.complexity");
 
 
   // Pitch Detection
   Algorithm* pitch = factory.create("PitchYinFFT",
                                     "frameSize", frameSize);
   connect(spec->output("spectrum"), pitch->input("spectrum"));
-  connect(pitch->output("pitch"), pool, nameSpace + "pitch",&cout);
-  connect(pitch->output("pitchConfidence"), pool, "pitch.instantaneous_confidence",&cout);
+  connect(pitch->output("pitch"), pool, nameSpace + "pitch");
+  connect(pitch->output("pitchConfidence"), pool, "pitch.instantaneous_confidence");
   namespaces.push_back("pitch");
 
 
   // Pitch Salience
   Algorithm* ps = factory.create("PitchSalience");
   connect(spec->output("spectrum"), ps->input("spectrum"));
-  connect(ps->output("pitchSalience"), pool, "pitch.salience",&cout);
+  connect(ps->output("pitchSalience"), pool, "pitch.salience");
 
 
   // Loudness
   Algorithm* dy = factory.create("Loudness");
   connect(fc->output("frame"), dy->input("signal"));
-  connect(dy->output("loudness"), pool, "l.loudness",&cout);
+  connect(dy->output("loudness"), pool, "l.loudness");
   namespaces.push_back("l");
 
 } 

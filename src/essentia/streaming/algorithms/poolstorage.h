@@ -20,8 +20,6 @@
 #ifndef ESSENTIA_POOLSTORAGE_H
 #define ESSENTIA_POOLSTORAGE_H
 
-#include <fstream>
-#include <string>
 #include "../streamingalgorithm.h"
 #include "../../pool.h"
 
@@ -54,22 +52,19 @@ template <typename TokenType, typename StorageType = TokenType>
 class PoolStorage : public PoolStorageBase {
  protected:
   Sink<TokenType> _descriptor;
-  //bool _stdout;
-  std::ostream* _outfile;
 
  public:
-  PoolStorage(Pool* pool, const std::string& descriptorName, bool setSingle = false, std::ostream *outfile = NULL) :
+  PoolStorage(Pool* pool, const std::string& descriptorName, bool setSingle = false) :
     PoolStorageBase(pool, descriptorName, setSingle) {
 
     setName("PoolStorage");
     declareInput(_descriptor, 1, "data", "the input data");
-    _outfile = outfile;
   }
 
   ~PoolStorage() {}
 
-  void declareParameters() {  }
-  
+  void declareParameters() {}
+
   AlgorithmStatus process() {
     EXEC_DEBUG("process(), for desc: " << _descriptorName);
 
@@ -85,7 +80,6 @@ class PoolStorage : public PoolStorageBase {
     }
 
     EXEC_DEBUG("appending tokens to pool");
-    if (_outfile != NULL) *_outfile << _descriptorName << ":";
     if (ntokens > 1) {
       _pool->append(_descriptorName, _descriptor.tokens());
     }
@@ -101,37 +95,26 @@ class PoolStorage : public PoolStorageBase {
 
   template <typename T>
   void addToPool(const std::vector<T>& value) {
-	// TODO: Implement a spitter here
     if (_setSingle) {
       for (int i=0; i<(int)value.size();++i)
-        _pool->add(_descriptorName, value[i]);
+      _pool->add(_descriptorName, value[i]);
     }
     else _pool->add(_descriptorName, value);
   }
 
   void addToPool(const std::vector<Real>& value) {
-	if (_outfile != NULL) {
-	  for (int i=0; i<(int)value.size();++i)
-        *_outfile << value[i] << " ";
-      if (_outfile != NULL) *_outfile << std::endl;
-	}
     if (_setSingle) _pool->set(_descriptorName, value);
     else            _pool->add(_descriptorName, value);
   }
 
   template <typename T>
   void addToPool(const T& value) {
-	// TODO: Make sure this spitter doesn't blow up
-	if (_outfile != NULL) {
-	  *_outfile << value << std::endl;
-    }
     if (_setSingle) _pool->set(_descriptorName, value);
     else            _pool->add(_descriptorName, value);
    }
 
   template <typename T>
   void addToPool(const TNT::Array2D<T>& value) {
-	// TODO: Implement a spitter here
     _pool->add(_descriptorName, value);
     /*
       if (_setSingle) {
@@ -143,7 +126,6 @@ class PoolStorage : public PoolStorageBase {
   }
 
   void addToPool(const StereoSample& value) {
-	// TODO: Implement a spitter here
     if (_setSingle) {
       throw EssentiaException("PoolStorage::addToPool, setting StereoSample as single value"
                               " is not supported by Pool.");
@@ -160,14 +142,6 @@ class PoolStorage : public PoolStorageBase {
  * Connect a source (eg: the output of an algorithm) to a Pool, and use the given
  * name as an identifier in the Pool.
  */
-void connect(SourceBase& source, Pool* pool,
-             const std::string& descriptorName,
-             std::ostream *outfile); 
- 
-void connect(SourceBase& source, Pool& pool,
-             const std::string& descriptorName,
-             std::ostream *outfile);
-
 void connect(SourceBase& source, Pool& pool,
              const std::string& descriptorName);
 
@@ -175,12 +149,9 @@ class PoolConnector {
 protected:
   Pool& pool;
   std::string name;
-  std::ostream* _outfile;
-  
+
 public:
-  PoolConnector(Pool& p, const std::string& descName, std::ostream *outfile = NULL) : pool(p), name(descName) {
-	_outfile = outfile;	  
-  }
+  PoolConnector(Pool& p, const std::string& descName) : pool(p), name(descName) {}
 
   friend void operator>>(SourceBase& source, const PoolConnector& pc);
 };
@@ -190,7 +161,7 @@ public:
 // The reason why this function is defined with a const PC& as argument is described here:
 // http://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/
 inline void operator>>(SourceBase& source, const PoolConnector& pc) {
-  connect(source, pc.pool, pc.name, pc._outfile);
+  connect(source, pc.pool, pc.name);
 }
 
 /**

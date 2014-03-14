@@ -517,3 +517,4 @@ SPECIALIZE_APPEND(StereoSample, StereoSample);
 } // namespace essentia
 
 #endif // ESSENTIA_POOL_H
+
